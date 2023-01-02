@@ -18,13 +18,13 @@ jobs:
           # https://github.com/AngleSharp/AngleSharp
           Install-Package AngleSharp -Source https://www.nuget.org/api/v2 -SkipDependencies -Force
 
-      - name: YouTube
+      - name: Downloading YouTube
         run: |
           New-Item -Path Temp -ItemType Directory -Force
 
           . Scripts\YouTube.ps1
 
-      - name: ReVanced CLI
+      - name: Downloading ReVanced CLI
         run: |
           . Scripts\ReVanced_CLI.ps1
 
@@ -32,15 +32,15 @@ jobs:
         run: |
           . Scripts\ReVanced_Patches.ps1
 
-      - name: ReVanced Integrations
+      - name: Downloading ReVanced Integrations
         run: |
           . Scripts\ReVanced_Intergrations.ps1
 
-      - name: Vanced MicroG
+      - name: Downloading Vanced MicroG
         run: |
           . Scripts\MicroG.ps1
 
-      - name: Zulu JDK
+      - name: Downloading and expanding Zulu JDK
         run: |
           . Scripts\Zulu_JDK.ps1
 
@@ -68,21 +68,21 @@ jobs:
           }
           Compress-Archive @Parameters
 
-      - name: ReleaseNotesTemplate
+      - name: Creating Release Notes
         id: read_release
         run: |
           # https://en.wikipedia.org/wiki/Percent-encoding
           $Release = (Get-Content -Path ReleaseNotesTemplate.md -Encoding utf8 -Raw).replace("`n", "%0A").replace("`r", "%0D").replace("YouTubeTag", "${{ env.LatestSupportedYT }}").replace("CLITag", "${{ env.CLIvtag }}").replace("PatchesTag", "${{ env.Patchesvtag }}").replace("IntegrationsTag", "${{ env.IntegrationsTag }}").replace("MicroGTag", "${{ env.MicroGTag }}").replace("ZuluTag", "${{ env.ZuluTag }}")
 
           # https://trstringer.com/github-actions-multiline-strings/
-          # echo "::set-output name=RELEASE_BODY::$Release"
           echo "RELEASE_BODY=$Release" >> $GITHUB_OUTPUT
 
           $ReleaseName = Get-Date -f "yyyy.MM.dd"
           echo "RELEASE_NAME=$ReleaseName" >> $env:GITHUB_ENV
 
-      - name: Uploading
-        uses: softprops/action-gh-release@v0.1.15
+      - name: Uploading to Releases
+        # uses: softprops/action-gh-release@v0.1.15
+        uses: softprops/action-gh-release@master
         with:
           # name: ${{ env.RELEASE_NAME }}
           tag_name: ${{ env.RELEASE_NAME }}
