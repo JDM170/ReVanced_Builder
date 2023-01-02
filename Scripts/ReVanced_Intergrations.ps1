@@ -4,10 +4,13 @@ $Parameters = @{
     UseBasicParsing = $true
     Verbose         = $true
 }
-$IntegrationsTag = (Invoke-RestMethod @Parameters).tag_name
+# $Tag = (Invoke-RestMethod @Parameters).tag_name
+# $Tag2 = $Tag.replace("v", "")
+$URL = (Invoke-RestMethod @Parameters).assets.browser_download_url
 $Parameters = @{
-    Uri             = "https://github.com/revanced/revanced-integrations/releases/download/$IntegrationsTag/app-release-unsigned.apk"
-    Outfile         = "Temp\app-release-unsigned.apk"
+    # Uri             = "https://github.com/revanced/revanced-integrations/releases/download/$Tag/revanced-integrations-$Tag2.apk"
+    Uri             = $URL
+    Outfile         = "Temp\revanced-integrations.apk"
     UseBasicParsing = $true
     Verbose         = $true
 }
