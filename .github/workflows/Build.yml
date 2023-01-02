@@ -69,23 +69,23 @@ jobs:
           Compress-Archive @Parameters
 
       - name: Creating Release Notes
-        id: read_release
+        # id: read_release
         run: |
           # https://en.wikipedia.org/wiki/Percent-encoding
           $Release = (Get-Content -Path ReleaseNotesTemplate.md -Encoding utf8 -Raw).replace("`n", "%0A").replace("`r", "%0D").replace("YouTubeTag", "${{ env.LatestSupportedYT }}").replace("CLITag", "${{ env.CLIvtag }}").replace("PatchesTag", "${{ env.Patchesvtag }}").replace("IntegrationsTag", "${{ env.IntegrationsTag }}").replace("MicroGTag", "${{ env.MicroGTag }}").replace("ZuluTag", "${{ env.ZuluTag }}")
 
           # https://trstringer.com/github-actions-multiline-strings/
-          echo "RELEASE_BODY=$Release" >> $GITHUB_OUTPUT
+          # echo "RELEASE_BODY=$Release" >> $GITHUB_OUTPUT
+          echo "RELEASE_BODY=$Release" >> $env:GITHUB_ENV
 
           $ReleaseName = Get-Date -f "yyyy.MM.dd"
           echo "RELEASE_NAME=$ReleaseName" >> $env:GITHUB_ENV
 
       - name: Uploading to Releases
-        # uses: softprops/action-gh-release@v0.1.15
         uses: softprops/action-gh-release@master
         with:
-          # name: ${{ env.RELEASE_NAME }}
           tag_name: ${{ env.RELEASE_NAME }}
           token: ${{ github.token }}
           files: ReVanced.zip
-          body: ${{ steps.read_release.outputs.RELEASE_BODY }}
+          # body: ${{ steps.read_release.outputs.RELEASE_BODY }}
+          body: ${{ env.RELEASE_BODY }}
