@@ -5,7 +5,7 @@ $Parameters = @{
     Verbose         = $true
 }
 $apiResult = Invoke-RestMethod @Parameters
-$IntegrationsTag = $apiResult.tag_name.replace("v", "")
+$IntegrationsTag = $apiResult.tag_name
 $Parameters = @{
     # Uri             = "https://github.com/revanced/revanced-integrations/releases/download/$Tag/revanced-integrations-$Tag2.apk"
     Uri             = $apiResult.assets.browser_download_url
