@@ -15,7 +15,6 @@ jobs:
 
       - name: Installing AngleSharp
         run: |
-          # https://github.com/AngleSharp/AngleSharp
           Install-Package AngleSharp -Source https://www.nuget.org/api/v2 -SkipDependencies -Force
 
       - name: Downloading YouTube
@@ -69,14 +68,15 @@ jobs:
           Compress-Archive @Parameters
 
       - name: Creating Release Notes
-        # id: read_release
+        id: read_release
         run: |
           # https://en.wikipedia.org/wiki/Percent-encoding
           $Release = (Get-Content -Path ReleaseNotesTemplate.md -Encoding utf8 -Raw).replace("`n", "%0A").replace("`r", "%0D").replace("YouTubeTag", "${{ env.LatestSupportedYT }}").replace("CLITag", "${{ env.CLIvtag }}").replace("PatchesTag", "${{ env.Patchesvtag }}").replace("IntegrationsTag", "${{ env.IntegrationsTag }}").replace("MicroGTag", "${{ env.MicroGTag }}").replace("ZuluTag", "${{ env.ZuluTag }}")
 
           # https://trstringer.com/github-actions-multiline-strings/
+          echo "::set-output name=RELEASE_BODY::$Release"
           # echo "RELEASE_BODY=$Release" >> $GITHUB_OUTPUT
-          echo "RELEASE_BODY=$Release" >> $env:GITHUB_ENV
+          # echo "RELEASE_BODY=$Release" >> $env:GITHUB_ENV
 
           $ReleaseName = Get-Date -f "yyyy.MM.dd"
           echo "RELEASE_NAME=$ReleaseName" >> $env:GITHUB_ENV
@@ -87,5 +87,5 @@ jobs:
           tag_name: ${{ env.RELEASE_NAME }}
           token: ${{ github.token }}
           files: ReVanced.zip
-          # body: ${{ steps.read_release.outputs.RELEASE_BODY }}
-          body: ${{ env.RELEASE_BODY }}
+          body: ${{ steps.read_release.outputs.RELEASE_BODY }}
+          # body: ${{ env.RELEASE_BODY }}
