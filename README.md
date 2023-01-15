@@ -1,4 +1,4 @@
-[![Build Status](https://img.shields.io/github/actions/workflow/status/JDM170/ReVanced_Builder/Build.yml?branch=main&style=flat-square&label=Build%20Status)](https://github.com/JDM170/ReVanced_Builder/actions/workflows/Build.yml)
+<a href="https://github.com/JDM170/ReVanced_Builder/actions"><img src="https://img.shields.io/github/actions/workflow/status/JDM170/ReVanced_Builder/Build.yml?label=GitHub%20Actions&logo=GitHub"></a>
 
 # ReVanced builder
 
