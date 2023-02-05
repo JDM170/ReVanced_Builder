@@ -4,8 +4,11 @@ $Parameters = @{
     UseBasicParsing = $true
     Verbose         = $true
 }
-$URL = (Invoke-RestMethod @Parameters).architecture."64bit".url
-$ZuluTag = (Invoke-RestMethod @Parameters).version
+# $URL = (Invoke-RestMethod @Parameters).architecture."64bit".url
+# $ZuluTag = (Invoke-RestMethod @Parameters).version
+$result = Invoke-RestMethod @Parameters
+$URL = $result.architecture."64bit".url
+$ZuluTag = $result.version
 $Parameters = @{
     Uri             = $URL
     Outfile         = "Temp\jdk_windows-x64_bin.zip"
