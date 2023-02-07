@@ -71,10 +71,9 @@ $Parameters = @{
     UseBasicParsing = $true
     Verbose         = $true
 }
-$Tag = (Invoke-RestMethod @Parameters).tag_name
-$Tag2 = $Tag.replace("v", "")
+$URL = (Invoke-RestMethod @Parameters).assets.browser_download_url
 $Parameters = @{
-    Uri             = "https://github.com/revanced/revanced-cli/releases/download/$Tag/revanced-cli-$Tag2-all.jar"
+    Uri             = $URL
     Outfile         = "$WorkingFolder\ReVanced\revanced-cli.jar"
     UseBasicParsing = $true
     Verbose         = $true
@@ -103,11 +102,8 @@ $Parameters = @{
     UseBasicParsing = $true
     Verbose         = $true
 }
-# $Tag = (Invoke-RestMethod @Parameters).tag_name
-# $Tag2 = $Tag.replace("v", "")
 $URL = (Invoke-RestMethod @Parameters).assets.browser_download_url
 $Parameters = @{
-    # Uri             = "https://github.com/revanced/revanced-integrations/releases/download/$Tag/revanced-integrations-$Tag2.apk"
     Uri             = $URL
     Outfile         = "$WorkingFolder\ReVanced\revanced-integrations.apk"
     UseBasicParsing = $true
@@ -121,9 +117,9 @@ $Parameters = @{
     UseBasicParsing = $true
     Verbose         = $true
 }
-$Tag = (Invoke-RestMethod @Parameters).tag_name
+$URL = (Invoke-RestMethod @Parameters).assets.browser_download_url
 $Parameters = @{
-    Uri             = "https://github.com/TeamVanced/VancedMicroG/releases/download/$Tag/microg.apk"
+    Uri             = $URL
     Outfile         = "$WorkingFolder\ReVanced\microg.apk"
     UseBasicParsing = $true
     Verbose         = $true
@@ -162,7 +158,11 @@ Remove-Item -Path "$WorkingFolder\ReVanced\jdk_windows-x64_bin.zip" -Force
 --apk "$WorkingFolder\ReVanced\youtube.apk" `
 --bundle "$WorkingFolder\ReVanced\revanced-patches.jar" `
 --merge "$WorkingFolder\ReVanced\revanced-integrations.apk" `
---exclude hide-time-and-seekbar --exclude always-autorepeat --exclude hide-captions-button --exclude disable-fullscreen-panels --exclude old-quality-layout `
+--exclude hide-time-and-seekbar `
+--exclude always-autorepeat `
+--exclude hide-captions-button `
+--exclude disable-fullscreen-panels `
+--exclude old-quality-layout `
 --clean `
 --temp-dir "$WorkingFolder\ReVanced\Temp" `
 --out "$WorkingFolder\ReVanced\revanced.apk"
@@ -171,6 +171,6 @@ Remove-Item -Path "$WorkingFolder\ReVanced\jdk_windows-x64_bin.zip" -Force
 # Invoke-Item -Path "$WorkingFolder\ReVanced"
 
 # Remove temp directory, because cli failed to clean up directory
-Remove-Item -Path "$WorkingFolder\ReVanced\Temp" -Recurse -Force -Confirm:$false
+# Remove-Item -Path "$WorkingFolder\ReVanced\Temp" -Recurse -Force -Confirm:$false
 
 Write-Warning -Message "Latest available revanced.apk & microg.apk are ready in `"$WorkingFolder\ReVanced`""

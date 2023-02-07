@@ -6,7 +6,7 @@ $Parameters = @{
 }
 $apiResult = Invoke-RestMethod @Parameters
 $URL = $apiResult.architecture."64bit".url
-$ZuluTag = $apiResult.version
+$TAG = $apiResult.version
 $Parameters = @{
     Uri             = $URL
     Outfile         = "Temp\jdk_windows-x64_bin.zip"
@@ -15,7 +15,7 @@ $Parameters = @{
 }
 Invoke-RestMethod @Parameters
 
-echo "ZuluTag=$ZuluTag" >> $env:GITHUB_ENV
+echo "ZuluTag=$TAG" >> $env:GITHUB_ENV
 
 Write-Verbose -Message "Expanding Zulu JDK" -Verbose
 

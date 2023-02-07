@@ -4,13 +4,15 @@ $Parameters = @{
     UseBasicParsing = $true
     Verbose         = $true
 }
-$MicroGTag = (Invoke-RestMethod @Parameters).tag_name
+$apiResult = Invoke-RestMethod @Parameters
+$URL = $apiResult.assets.browser_download_url
+$TAG = $apiResult.tag_name
 $Parameters = @{
-     Uri             = "https://github.com/TeamVanced/VancedMicroG/releases/download/$MicroGTag/microg.apk"
-     Outfile         = "Temp\microg.apk"
-     UseBasicParsing = $true
-     Verbose         = $true
+    Uri             = $URL
+    Outfile         = "Temp\microg.apk"
+    UseBasicParsing = $true
+    Verbose         = $true
 }
 Invoke-RestMethod @Parameters
 
-echo "MicroGTag=$MicroGTag" >> $env:GITHUB_ENV
+echo "MicroGTag=$TAG" >> $env:GITHUB_ENV

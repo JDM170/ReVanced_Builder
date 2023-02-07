@@ -4,14 +4,15 @@ $Parameters = @{
     UseBasicParsing = $true
     Verbose         = $true
 }
-$CLIvtag = (Invoke-RestMethod @Parameters).tag_name
-$CLItag = $CLIvtag.replace("v", "")
+$apiResult = Invoke-RestMethod @Parameters
+$URL = $apiResult.assets.browser_download_url
+$TAG = $apiResult.tag_name
 $Parameters = @{
-    Uri   = "https://github.com/revanced/revanced-cli/releases/download/$CLIvtag/revanced-cli-$CLItag-all.jar"
+    Uri             = $URL
     Outfile         = "Temp\revanced-cli.jar"
     UseBasicParsing = $true
     Verbose         = $true
 }
 Invoke-RestMethod @Parameters
 
-echo "CLIvtag=$CLIvtag" >> $env:GITHUB_ENV
+echo "CLIvtag=$TAG" >> $env:GITHUB_ENV

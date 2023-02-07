@@ -5,14 +5,14 @@ $Parameters = @{
     Verbose         = $true
 }
 $apiResult = Invoke-RestMethod @Parameters
-$IntegrationsTag = $apiResult.tag_name
+$URL = $apiResult.assets.browser_download_url
+$TAG = $apiResult.tag_name
 $Parameters = @{
-    # Uri             = "https://github.com/revanced/revanced-integrations/releases/download/$Tag/revanced-integrations-$Tag2.apk"
-    Uri             = $apiResult.assets.browser_download_url
+    Uri             = $URL
     Outfile         = "Temp\revanced-integrations.apk"
     UseBasicParsing = $true
     Verbose         = $true
 }
 Invoke-RestMethod @Parameters
 
-echo "IntegrationsTag=$IntegrationsTag" >> $env:GITHUB_ENV
+echo "IntegrationsTag=$TAG" >> $env:GITHUB_ENV
