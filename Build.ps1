@@ -86,10 +86,9 @@ $Parameters = @{
     UseBasicParsing = $true
     Verbose         = $true
 }
-$Tag = (Invoke-RestMethod @Parameters).tag_name
-$Tag2 = $Tag.replace("v", "")
+$URL = ((Invoke-RestMethod @Parameters).assets | Where-Object -FilterScript {$_.content_type -eq "application/java-archive"}).browser_download_url
 $Parameters = @{
-    Uri             = "https://github.com/revanced/revanced-patches/releases/download/$Tag/revanced-patches-$Tag2.jar"
+    Uri             = $URL
     Outfile         = "$WorkingFolder\ReVanced\revanced-patches.jar"
     UseBasicParsing = $true
     Verbose         = $true
