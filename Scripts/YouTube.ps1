@@ -15,29 +15,7 @@ Add-Type -Path $AngleSharpAssemblyPath
 
 # Get unique key to generate direct link
 # https://www.apkmirror.com/apk/google-inc/youtube/
-$apkMirrorLink = "https://www.apkmirror.com/apk/google-inc/youtube/youtube-$($LatestSupportedYT)-release/"
-$Parameters = @{
-    Uri             = $apkMirrorLink
-    UseBasicParsing = $true # Disabled
-    Verbose         = $true
-}
-$Request = Invoke-Webrequest @Parameters
-# Trying to find correct APK link (not BUNDLE)
-$nameProp = $Request.ParsedHtml.getElementsByClassName("table-row headerFont")
-foreach ($element in $nameProp)
-{
-    foreach ($child in $element.children)
-    {
-        if ($child.innerText -eq "nodpi")
-        {
-            $apkPackageLink = ($element.getElementsByTagName("a") | Select-Object -First 1).nameProp
-            break
-        }
-    }
-}
-$apkMirrorLink += $apkPackageLink # actual APK link (not BUNDLE)
-
-# $apkMirrorLink = "https://www.apkmirror.com/apk/google-inc/youtube/youtube-$($LatestSupported)-release/youtube-$($LatestSupported)-2-android-apk-download/"
+$apkMirrorLink = "https://www.apkmirror.com/apk/google-inc/youtube/youtube-$($LatestSupported)-release/youtube-$($LatestSupported)-2-android-apk-download/"
 # $apkMirrorLink = "https://www.apkmirror.com/apk/google-inc/youtube/youtube-$($LatestSupported)-release/youtube-$($LatestSupported)-android-apk-download/"
 $Parameters = @{
     Uri             = $apkMirrorLink
@@ -49,7 +27,7 @@ $Parsed = (New-Object -TypeName AngleSharp.Html.Parser.HtmlParser).ParseDocument
 $Key = $Parsed.All | Where-Object -FilterScript {$_.ClassName -match "accent_bg btn btn-flat downloadButton"} | ForEach-Object -Process {$_.Search}
 
 $Parameters = @{
-    Uri             = $apkMirrorLink + "/download/$($Key)"
+    Uri             = $apkMirrorLink + "download/$($Key)"
     UseBasicParsing = $true
     Verbose         = $true
 }
