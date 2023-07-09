@@ -18,7 +18,7 @@ Add-Type -Path $AngleSharpAssemblyPath
 $apkMirrorLink = "https://www.apkmirror.com/apk/google-inc/youtube/youtube-$($LatestSupportedYT)-release/"
 $Parameters = @{
     Uri             = $apkMirrorLink
-    UseBasicParsing = $false # Disabled
+    UseBasicParsing = $true # Disabled
     Verbose         = $true
 }
 $Request = Invoke-Webrequest @Parameters
