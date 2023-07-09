@@ -15,7 +15,7 @@ Add-Type -Path $AngleSharpAssemblyPath
 
 # Get unique key to generate direct link
 # https://www.apkmirror.com/apk/google-inc/youtube/
-$apkMirrorLink = "https://www.apkmirror.com/apk/google-inc/youtube/youtube-$($LatestSupported)-release/"
+$apkMirrorLink = "https://www.apkmirror.com/apk/google-inc/youtube/youtube-$($LatestSupportedYT)-release/"
 $Parameters = @{
     Uri             = $apkMirrorLink
     UseBasicParsing = $false # Disabled
@@ -49,7 +49,7 @@ $Parsed = (New-Object -TypeName AngleSharp.Html.Parser.HtmlParser).ParseDocument
 $Key = $Parsed.All | Where-Object -FilterScript {$_.ClassName -match "accent_bg btn btn-flat downloadButton"} | ForEach-Object -Process {$_.Search}
 
 $Parameters = @{
-    Uri             = $apkMirrorLink + "download/$($Key)"
+    Uri             = $apkMirrorLink + "/download/$($Key)"
     UseBasicParsing = $true
     Verbose         = $true
 }
