@@ -15,8 +15,30 @@ Add-Type -Path $AngleSharpAssemblyPath
 
 # Get unique key to generate direct link
 # https://www.apkmirror.com/apk/google-inc/youtube/
+$apkMirrorLink = "https://www.apkmirror.com/apk/google-inc/youtube/youtube-$($LatestSupported)-release/"
+$Parameters = @{
+    Uri             = $apkMirrorLink
+    UseBasicParsing = $false # Disabled
+    Verbose         = $true
+}
+$Request = Invoke-Webrequest @Parameters
+# Trying to find correct APK link (not BUNDLE)
+$nameProp = $Request.ParsedHtml.getElementsByClassName("table-row headerFont")
+foreach ($element in $nameProp)
+{
+    foreach ($child in $element.children)
+    {
+        if ($child.innerText -eq "nodpi")
+        {
+            $apkPackageLink = ($element.getElementsByTagName("a") | Select-Object -First 1).nameProp
+            break
+        }
+    }
+}
+$apkMirrorLink += $apkPackageLink # actual APK link (not BUNDLE)
+
 # $apkMirrorLink = "https://www.apkmirror.com/apk/google-inc/youtube/youtube-$($LatestSupported)-release/youtube-$($LatestSupported)-2-android-apk-download/"
-$apkMirrorLink = "https://www.apkmirror.com/apk/google-inc/youtube/youtube-$($LatestSupported)-release/youtube-$($LatestSupported)-android-apk-download/"
+# $apkMirrorLink = "https://www.apkmirror.com/apk/google-inc/youtube/youtube-$($LatestSupported)-release/youtube-$($LatestSupported)-android-apk-download/"
 $Parameters = @{
     Uri             = $apkMirrorLink
     UseBasicParsing = $false # Disabled
