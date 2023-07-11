@@ -13,9 +13,12 @@ $LatestSupportedYT = $LatestSupported.replace(".", "-")
 $AngleSharpAssemblyPath = (Get-ChildItem -Path (Split-Path -Path (Get-Package -Name AngleSharp).Source) -Filter "*.dll" -Recurse | Where-Object -FilterScript {$_ -match "standard"} | Select-Object -Last 1).FullName
 Add-Type -Path $AngleSharpAssemblyPath
 
+# Create parser object
 $angleparser = New-Object -TypeName AngleSharp.Html.Parser.HtmlParser
 
-$apkMirrorLink = "https://www.apkmirror.com/apk/google-inc/youtube/youtube-18-23-35-release/"
+# Trying to find correct APK link (not BUNDLE)
+# https://www.apkmirror.com/apk/google-inc/youtube/
+$apkMirrorLink = "https://www.apkmirror.com/apk/google-inc/youtube/youtube-$($LatestSupported)-release/"
 $Parameters = @{
     Uri             = $apkMirrorLink
     UseBasicParsing = $false # Disabled
@@ -33,19 +36,15 @@ $Parsed.All | Where-Object -FilterScript {$_.ClassName -match "table-row headerF
         }
     }
 }
-$apkMirrorLink += $apkPackageLink
+$apkMirrorLink += $apkPackageLink # actual APK link (not BUNDLE)
 
 # Get unique key to generate direct link
-# https://www.apkmirror.com/apk/google-inc/youtube/
-# $apkMirrorLink = "https://www.apkmirror.com/apk/google-inc/youtube/youtube-$($LatestSupported)-release/youtube-$($LatestSupported)-2-android-apk-download/"
-# $apkMirrorLink = "https://www.apkmirror.com/apk/google-inc/youtube/youtube-$($LatestSupported)-release/youtube-$($LatestSupported)-android-apk-download/"
 $Parameters = @{
     Uri             = $apkMirrorLink
     UseBasicParsing = $false # Disabled
     Verbose         = $true
 }
 $Request = Invoke-Webrequest @Parameters
-# $Parsed = (New-Object -TypeName AngleSharp.Html.Parser.HtmlParser).ParseDocument($Request.Content)
 $Parsed = $angleparser.ParseDocument($Request.Content)
 $Key = $Parsed.All | Where-Object -FilterScript {$_.ClassName -match "accent_bg btn btn-flat downloadButton"} | ForEach-Object -Process {$_.Search}
 
@@ -55,7 +54,6 @@ $Parameters = @{
     Verbose         = $true
 }
 $Request = Invoke-Webrequest @Parameters
-# $Parsed = (New-Object -TypeName AngleSharp.Html.Parser.HtmlParser).ParseDocument($Request.Content)
 $Parsed = $angleparser.ParseDocument($Request.Content)
 $Key = ($Parsed.All | Where-Object -FilterScript { $_.InnerHtml -eq "here" }).Search
 
