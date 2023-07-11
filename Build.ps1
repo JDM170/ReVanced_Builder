@@ -37,8 +37,8 @@ $versions = ($JSON | Where-Object -FilterScript {$_.compatiblePackages.name -eq 
 $LatestSupported = $versions | Sort-Object -Descending -Unique | Select-Object -First 1
 $LatestSupported = $LatestSupported.replace(".", "-")
 
-# https://www.apkmirror.com/apk/google-inc/youtube/
 # Trying to find correct APK link (not BUNDLE)
+# https://www.apkmirror.com/apk/google-inc/youtube/
 $apkMirrorLink = "https://www.apkmirror.com/apk/google-inc/youtube/youtube-$($LatestSupported)-release/"
 $Parameters = @{
     Uri             = $apkMirrorLink
