@@ -18,6 +18,10 @@
 # Requires -Version 5.1
 # Doesn't work on PowerShell 7.2 due it doesn't contains IE parser engine. You have to use a 3rd party module to make it work like it's presented in CI/CD config: AngleSharp
 
+# Invoke-Webrequest speedup workaround. Improved downloads speeds significantly. 
+# Ref: https://www.codewrecks.com/post/azdo/pills/powershell-download/
+$ProgressPreference = 'SilentlyContinue'
+
 # Download all files to "Script location folder\ReVanced"
 $WorkingFolder = Split-Path $MyInvocation.MyCommand.Path -Parent
 if (-not (Test-Path -Path "$WorkingFolder\ReVanced"))
@@ -144,6 +148,11 @@ $Parameters = @{
     Verbose         = $true
 }
 Invoke-RestMethod @Parameters
+
+# Sometimes older version of zulu-jdk causes conflict, so remove older version before proceeding.
+if (Test-Path -Path "$WorkingFolder\ReVanced\jdk") {
+    Remove-Item -Path "$WorkingFolder\ReVanced\jdk" -Recurse -Force
+}
 
 # https://github.com/ScoopInstaller/Java/blob/master/bucket/zulu-jdk.json
 $Parameters = @{
