@@ -13,37 +13,37 @@ jobs:
     steps:
       - uses: actions/checkout@main
 
-      - name: Installing AngleSharp
+      - name: Install AngleSharp
         run: |
           Install-Package AngleSharp -Source https://www.nuget.org/api/v2 -SkipDependencies -Force
 
-      - name: Downloading YouTube
+      - name: Download YouTube
         run: |
           New-Item -Path Temp -ItemType Directory -Force
 
           . Scripts\YouTube.ps1
 
-      - name: Downloading ReVanced CLI
+      - name: Download ReVanced CLI
         run: |
           . Scripts\ReVanced_CLI.ps1
 
-      - name: Downloading ReVanced Patches
+      - name: Download ReVanced Patches
         run: |
           . Scripts\ReVanced_Patches.ps1
 
-      - name: Downloading ReVanced Integrations
+      - name: Download ReVanced Integrations
         run: |
           . Scripts\ReVanced_Intergrations.ps1
 
-      - name: Downloading Vanced MicroG
+      - name: Download Vanced MicroG
         run: |
           . Scripts\MicroG.ps1
 
-      - name: Downloading and expanding Zulu JDK
+      - name: Download and expanding Zulu JDK
         run: |
           . Scripts\Zulu_JDK.ps1
 
-      - name: Building
+      - name: Build
         run: |
           $JavaPath = (Resolve-Path -Path "Temp\jdk_windows-x64_bin\zulu*win_x64\bin\java.exe").Path
 
@@ -60,7 +60,7 @@ jobs:
           --out "Temp\revanced.apk" `
           "Temp\youtube.apk"
 
-      - name: Creating archive
+      - name: Create archive
         run: |
           Get-ChildItem Temp\Temp -Recurse -Force
           $Parameters = @{
@@ -71,7 +71,7 @@ jobs:
           }
           Compress-Archive @Parameters
 
-      - name: Creating Release Notes
+      - name: Create Release Notes
         id: read_release
         run: |
           # https://en.wikipedia.org/wiki/Percent-encoding
@@ -81,7 +81,7 @@ jobs:
           $ReleaseName = Get-Date -f "yyyy.MM.dd"
           echo "RELEASE_NAME=$ReleaseName" >> $env:GITHUB_ENV
 
-      - name: Uploading to Releases
+      - name: Upload to Releases
         uses: softprops/action-gh-release@master
         with:
           tag_name: ${{ env.RELEASE_NAME }}
