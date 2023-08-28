@@ -48,18 +48,17 @@ jobs:
           $JavaPath = (Resolve-Path -Path "Temp\jdk_windows-x64_bin\zulu*win_x64\bin\java.exe").Path
 
           & $JavaPath `
-          -jar "Temp\revanced-cli.jar" `
-          --apk "Temp\youtube.apk" `
-          --bundle "Temp\revanced-patches.jar" `
+          -jar "Temp\revanced-cli.jar" patch `
+          --patch-bundle "Temp\revanced-patches.jar" `
           --merge "Temp\revanced-integrations.apk" `
-          --exclude hide-time-and-seekbar `
-          --exclude always-autorepeat `
-          --exclude hide-captions-button `
-          --exclude disable-fullscreen-panels `
-          --exclude old-quality-layout `
-          --clean `
-          --temp-dir "Temp\Temp" `
-          --out "Temp\revanced.apk"
+          --exclude "always-autorepeat" `
+          --exclude "hide-captions-button" `
+          --exclude "hide-timestamp" `
+          --exclude "hide-seekbar" `
+          --purge `
+          --resource-cache "Temp\Temp" `
+          --out "Temp\revanced.apk" `
+          "Temp\youtube.apk"
 
       - name: Creating archive
         run: |

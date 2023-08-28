@@ -180,20 +180,19 @@ Expand-Archive @Parameters
 
 Remove-Item -Path "$WorkingFolder\ReVanced\jdk_windows-x64_bin.zip" -Force
 
-# https://github.com/revanced/revanced-patches
+# Let's create patched APK
 & "$WorkingFolder\ReVanced\jdk\zulu*win_x64\bin\java.exe" `
--jar "$WorkingFolder\ReVanced\revanced-cli.jar" `
---apk "$WorkingFolder\ReVanced\youtube.apk" `
---bundle "$WorkingFolder\ReVanced\revanced-patches.jar" `
+-jar "$WorkingFolder\ReVanced\revanced-cli.jar" patch `
+--patch-bundle "$WorkingFolder\ReVanced\revanced-patches.jar" `
 --merge "$WorkingFolder\ReVanced\revanced-integrations.apk" `
---exclude hide-time-and-seekbar `
---exclude always-autorepeat `
---exclude hide-captions-button `
---exclude disable-fullscreen-panels `
---exclude old-quality-layout `
---clean `
---temp-dir "$WorkingFolder\ReVanced\Temp" `
---out "$WorkingFolder\ReVanced\revanced.apk"
+--exclude "always-autorepeat" `
+--exclude "hide-captions-button" `
+--exclude "hide-timestamp" `
+--exclude "hide-seekbar" `
+--purge `
+--resource-cache "$WorkingFolder\ReVanced\Temp" `
+--out "$WorkingFolder\ReVanced\revanced.apk" `
+"$WorkingFolder\ReVanced\youtube.apk"
 
 # Open working directory with builded files
 # Invoke-Item -Path "$WorkingFolder\ReVanced"
