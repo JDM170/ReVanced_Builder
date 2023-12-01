@@ -1,9 +1,6 @@
 name: Build
 
-on: 
-  push:
-    tags:
-      - "*"
+on:
   workflow_dispatch:
 
 jobs:
@@ -85,6 +82,5 @@ jobs:
         uses: softprops/action-gh-release@master
         with:
           tag_name: ${{ env.RELEASE_NAME }}
-          token: ${{ github.token }}
-          files: ReVanced.zip
           body_path: ${{ steps.read_release.outputs.ReleaseBody }}
+          files: ReVanced.zip
