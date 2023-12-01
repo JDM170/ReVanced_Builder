@@ -18,9 +18,9 @@ $angleparser = New-Object -TypeName AngleSharp.Html.Parser.HtmlParser
 
 # Try to find correct NON-Bundle version
 $Parameters = @{
-	Uri             = "https://www.apkmirror.com/apk/google-inc/youtube/youtube-$($LatestSupportedYT)-release/youtube-$($LatestSupportedYT)-android-apk-download/"
-	UseBasicParsing = $false # Disabled
-	Verbose         = $true
+    Uri             = "https://www.apkmirror.com/apk/google-inc/youtube/youtube-$($LatestSupportedYT)-release/youtube-$($LatestSupportedYT)-android-apk-download/"
+    UseBasicParsing = $false # Disabled
+    Verbose         = $true
 }
 $URLParse = (Invoke-Webrequest @Parameters).Links.outerHTML | Where-Object -FilterScript {$_ -like "*YouTube $($LatestSupportedYT) (nodpi)*"}
 # Check if variable contains a data
