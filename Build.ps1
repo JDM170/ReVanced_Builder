@@ -41,30 +41,26 @@ $versions = ($JSON | Where-Object -FilterScript {$_.compatiblePackages.name -eq 
 $LatestSupported = $versions | Sort-Object -Descending -Unique | Select-Object -First 1
 $LatestSupported = $LatestSupported.replace(".", "-")
 
-# Trying to find correct APK link (not BUNDLE)
-# https://www.apkmirror.com/apk/google-inc/youtube/
-$apkMirrorLink = "https://www.apkmirror.com/apk/google-inc/youtube/youtube-$($LatestSupported)-release/"
+# Try to find correct NON-Bundle version
 $Parameters = @{
-    Uri             = $apkMirrorLink
-    UseBasicParsing = $false # Disabled
-    Verbose         = $true
+	Uri             = "https://www.apkmirror.com/apk/google-inc/youtube/youtube-$($LatestSupported)-release/youtube-$($LatestSupported)-android-apk-download/"
+	UseBasicParsing = $false # Disabled
+	Verbose         = $true
 }
-$Request = Invoke-Webrequest @Parameters
-$Request.ParsedHtml.getElementsByClassName("table-row headerFont") | ForEach-Object -Process {
-    foreach ($child in $_.children)
-    {
-        if ($child.innerText -eq "nodpi")
-        {
-            $apkPackageLink = ($_.getElementsByTagName("a") | Select-Object -First 1).nameProp
-            break
-        }
-    }
+$URLParse = (Invoke-Webrequest @Parameters).Links.outerHTML | Where-Object -FilterScript {$_ -like "*YouTube $($LatestSupported.replace("-", ".")) (nodpi)*"}
+# Check if variable contains a data
+if ($URLParse)
+{
+    $URL = "https://www.apkmirror.com/apk/google-inc/youtube/youtube-$($LatestSupported)-release/youtube-$($LatestSupported)-android-apk-download/"
 }
-$apkMirrorLink += $apkPackageLink # actual APK link (not BUNDLE)
+else
+{
+    $URL = "https://www.apkmirror.com/apk/google-inc/youtube/youtube-$($LatestSupported)-release/youtube-$($LatestSupported)-2-android-apk-download/"
+}
 
 # Get unique key to generate direct link
 $Parameters = @{
-    Uri             = $apkMirrorLink
+    Uri             = $URL
     UseBasicParsing = $false # Disabled
     Verbose         = $true
 }
@@ -72,7 +68,7 @@ $Request = Invoke-Webrequest @Parameters
 $nameProp = $Request.ParsedHtml.getElementsByClassName("accent_bg btn btn-flat downloadButton") | ForEach-Object -Process {$_.nameProp}
 
 $Parameters = @{
-    Uri = $apkMirrorLink + "/download/$($nameProp)"
+    Uri = "$($URL)/download/$($nameProp)"
     UseBasicParsing = $false # Disabled
     Verbose         = $true
 }
@@ -150,7 +146,8 @@ $Parameters = @{
 Invoke-RestMethod @Parameters
 
 # Sometimes older version of zulu-jdk causes conflict, so remove older version before proceeding.
-if (Test-Path -Path "$WorkingFolder\ReVanced\jdk") {
+if (Test-Path -Path "$WorkingFolder\ReVanced\jdk")
+{
     Remove-Item -Path "$WorkingFolder\ReVanced\jdk" -Recurse -Force
 }
 
