@@ -16,31 +16,26 @@ Add-Type -Path $AngleSharpAssemblyPath
 # Create parser object
 $angleparser = New-Object -TypeName AngleSharp.Html.Parser.HtmlParser
 
-# Trying to find correct APK link (not BUNDLE)
-# https://www.apkmirror.com/apk/google-inc/youtube/
-$apkMirrorLink = "https://www.apkmirror.com/apk/google-inc/youtube/youtube-$($LatestSupported)-release/"
+# Try to find correct NON-Bundle version
 $Parameters = @{
-    Uri             = $apkMirrorLink
-    UseBasicParsing = $false # Disabled
-    Verbose         = $true
+	Uri             = "https://www.apkmirror.com/apk/google-inc/youtube/youtube-$($LatestSupportedYT)-release/youtube-$($LatestSupportedYT)-android-apk-download/"
+	UseBasicParsing = $false # Disabled
+	Verbose         = $true
 }
-$Request = Invoke-Webrequest @Parameters
-$Parsed = $angleparser.ParseDocument($Request.Content)
-$Parsed.All | Where-Object -FilterScript {$_.ClassName -match "table-row headerFont"} | ForEach-Object -Process {
-    foreach($child in $_.children)
-    {
-        if ($child.InnerHtml -eq "nodpi")
-        {
-            $apkPackageLink = (($_.getElementsByTagName("a") | Select-Object -First 1).Href).Substring(57)
-            break
-        }
-    }
+$URLParse = (Invoke-Webrequest @Parameters).Links.outerHTML | Where-Object -FilterScript {$_ -like "*YouTube $($LatestSupportedYT) (nodpi)*"}
+# Check if variable contains a data
+if ($URLParse)
+{
+    $URL = "https://www.apkmirror.com/apk/google-inc/youtube/youtube-$($LatestSupportedYT)-release/youtube-$($LatestSupportedYT)-android-apk-download/"
 }
-$apkMirrorLink += $apkPackageLink # actual APK link (not BUNDLE)
+else
+{
+    $URL = "https://www.apkmirror.com/apk/google-inc/youtube/youtube-$($LatestSupportedYT)-release/youtube-$($LatestSupportedYT)-2-android-apk-download/"
+}
 
 # Get unique key to generate direct link
 $Parameters = @{
-    Uri             = $apkMirrorLink
+    Uri             = $URL
     UseBasicParsing = $false # Disabled
     Verbose         = $true
 }
@@ -49,7 +44,7 @@ $Parsed = $angleparser.ParseDocument($Request.Content)
 $Key = $Parsed.All | Where-Object -FilterScript {$_.ClassName -match "accent_bg btn btn-flat downloadButton"} | ForEach-Object -Process {$_.Search}
 
 $Parameters = @{
-    Uri             = $apkMirrorLink + "download/$($Key)"
+    Uri             = "$($URL)/download/$($Key)"
     UseBasicParsing = $true
     Verbose         = $true
 }
@@ -66,4 +61,4 @@ $Parameters = @{
 }
 Invoke-Webrequest @Parameters
 
-echo "LatestSupportedYT=$LatestSupportedYT" >> $env:GITHUB_ENV
+echo "LatestSupportedYT=$LatestSupported" >> $env:GITHUB_ENV
