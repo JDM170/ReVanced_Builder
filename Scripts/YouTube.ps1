@@ -22,7 +22,10 @@ $Parameters = @{
     UseBasicParsing = $false # Disabled
     Verbose         = $true
 }
-$URLParse = (Invoke-Webrequest @Parameters).Links.outerHTML | Where-Object -FilterScript {$_ -like "*YouTube $($LatestSupported) (nodpi)*"}
+# $URLParse = (Invoke-Webrequest @Parameters).Links.outerHTML | Where-Object -FilterScript {$_ -like "*YouTube $($LatestSupported) (nodpi)*"}
+$Request = Invoke-Webrequest @Parameters
+$Parsed = $angleparser.ParseDocument($Request.Content)
+$URLParse = $Parsed.All | Where-Object -FilterScript {$_ -like "*YouTube $($LatestSupported) (nodpi)*"}
 # Check if variable contains a data
 if ($URLParse)
 {
