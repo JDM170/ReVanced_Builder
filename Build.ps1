@@ -130,9 +130,9 @@ $Parameters = @{
 }
 Invoke-RestMethod @Parameters
 
-# https://github.com/TeamVanced/VancedMicroG
+# https://github.com/inotia00/VancedMicroG
 $Parameters = @{
-    Uri             = "https://api.github.com/repos/TeamVanced/VancedMicroG/releases/latest"
+    Uri             = "https://api.github.com/repos/inotia00/VancedMicroG/releases/latest"
     UseBasicParsing = $true
     Verbose         = $true
 }
@@ -182,10 +182,10 @@ Remove-Item -Path "$WorkingFolder\ReVanced\jdk_windows-x64_bin.zip" -Force
 -jar "$WorkingFolder\ReVanced\revanced-cli.jar" patch `
 --patch-bundle "$WorkingFolder\ReVanced\revanced-patches.jar" `
 --merge "$WorkingFolder\ReVanced\revanced-integrations.apk" `
---exclude "always-autorepeat" `
---exclude "hide-captions-button" `
---exclude "hide-timestamp" `
---exclude "hide-seekbar" `
+--exclude "Always repeat" `
+--exclude "Hide captions button" `
+--exclude "Hide timestamp" `
+--exclude "Hide seekbar" `
 --purge `
 --resource-cache "$WorkingFolder\ReVanced\Temp" `
 --out "$WorkingFolder\ReVanced\revanced.apk" `
