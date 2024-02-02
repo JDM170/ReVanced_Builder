@@ -1,6 +1,6 @@
-# https://github.com/TeamVanced/VancedMicroG
+# https://github.com/inotia00/VancedMicroG
 $Parameters = @{
-    Uri             = "https://api.github.com/repos/TeamVanced/VancedMicroG/releases/latest"
+    Uri             = "https://api.github.com/repos/inotia00/VancedMicroG/releases/latest"
     UseBasicParsing = $true
     Verbose         = $true
 }
