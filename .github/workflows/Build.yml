@@ -48,14 +48,14 @@ jobs:
           -jar "Temp\revanced-cli.jar" patch `
           --patch-bundle "Temp\revanced-patches.jar" `
           --merge "Temp\revanced-integrations.apk" `
-          --exclude "always-autorepeat" `
-          --exclude "hide-captions-button" `
-          --exclude "hide-timestamp" `
-          --exclude "hide-seekbar" `
+          --exclude "Always repeat" `
+          --exclude "Hide captions button" `
+          --exclude "Hide timestamp" `
+          --exclude "Hide seekbar" `
           --purge `
-          --resource-cache "Temp\Temp" `
           --out "Temp\revanced.apk" `
           "Temp\youtube.apk"
+          # --resource-cache "Temp\Temp" `
 
       - name: Create archive
         run: |
