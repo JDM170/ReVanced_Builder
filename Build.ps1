@@ -186,6 +186,7 @@ Remove-Item -Path "$WorkingFolder\ReVanced\jdk_windows-x64_bin.zip" -Force
 --exclude "Hide captions button" `
 --exclude "Hide timestamp" `
 --exclude "Hide seekbar" `
+--exclude "Swipe controls" `
 --purge `
 --resource-cache "$WorkingFolder\ReVanced\Temp" `
 --out "$WorkingFolder\ReVanced\revanced.apk" `
