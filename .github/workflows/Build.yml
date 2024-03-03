@@ -52,7 +52,6 @@ jobs:
           --exclude "Hide captions button" `
           --exclude "Hide timestamp" `
           --exclude "Hide seekbar" `
-          --exclude "Swipe controls" `
           --purge `
           --out "Temp\revanced.apk" `
           "Temp\youtube.apk"
