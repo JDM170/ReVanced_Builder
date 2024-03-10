@@ -12,17 +12,17 @@ $LatestSupported = $versions | Sort-Object -Descending -Unique | Select-Object -
 # We need a NON-bundle version
 # https://apkpure.net/ru/youtube/com.google.android.youtube/versions
 $Parameters = @{
-	Uri             = "https://apkpure.net/youtube/com.google.android.youtube/download/$($LatestSupported)"
-	UseBasicParsing = $true
-	Verbose         = $true
+    Uri             = "https://apkpure.net/youtube/com.google.android.youtube/download/$($LatestSupported)"
+    UseBasicParsing = $true
+    Verbose         = $true
 }
 $URL = (Invoke-Webrequest @Parameters).Links.href | Where-Object -FilterScript {$_ -match "APK/com.google.android.youtube"} | Select-Object -Index 1
 
 $Parameters = @{
-	Uri             = $URL
-	OutFile         = "Temp\youtube.apk"
-	UseBasicParsing = $true
-	Verbose         = $true
+    Uri             = $URL
+    OutFile         = "Temp\youtube.apk"
+    UseBasicParsing = $true
+    Verbose         = $true
 }
 Invoke-Webrequest @Parameters
 

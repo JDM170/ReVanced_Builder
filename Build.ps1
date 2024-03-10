@@ -22,9 +22,9 @@
 
 if ($Host.Version.Major -eq 5)
 {
-	# Progress bar can significantly impact cmdlet performance
-	# https://github.com/PowerShell/PowerShell/issues/2138
-	$Script:ProgressPreference = "SilentlyContinue"
+    # Progress bar can significantly impact cmdlet performance
+    # https://github.com/PowerShell/PowerShell/issues/2138
+    $Script:ProgressPreference = "SilentlyContinue"
 }
 
 # Download all files to "Script location folder\ReVanced"
@@ -48,17 +48,17 @@ $LatestSupported = $versions | Sort-Object -Descending -Unique | Select-Object -
 # We need a NON-bundle version
 # https://apkpure.net/ru/youtube/com.google.android.youtube/versions
 $Parameters = @{
-	Uri             = "https://apkpure.net/youtube/com.google.android.youtube/download/$($LatestSupported)"
-	UseBasicParsing = $true
-	Verbose         = $true
+    Uri             = "https://apkpure.net/youtube/com.google.android.youtube/download/$($LatestSupported)"
+    UseBasicParsing = $true
+    Verbose         = $true
 }
 $URL = (Invoke-Webrequest @Parameters).Links.href | Where-Object -FilterScript {$_ -match "APK/com.google.android.youtube"} | Select-Object -Index 1
 
 $Parameters = @{
-	Uri             = $URL
-	OutFile         = "$WorkingFolder\ReVanced\youtube.apk"
-	UseBasicParsing = $true
-	Verbose         = $true
+    Uri             = $URL
+    OutFile         = "$WorkingFolder\ReVanced\youtube.apk"
+    UseBasicParsing = $true
+    Verbose         = $true
 }
 Invoke-Webrequest @Parameters
 
