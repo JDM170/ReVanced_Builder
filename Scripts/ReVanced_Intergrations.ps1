@@ -5,7 +5,7 @@ $Parameters = @{
     Verbose         = $true
 }
 $apiResult = Invoke-RestMethod @Parameters
-$URL = $apiResult.assets.browser_download_url
+$URL = ($apiResult.assets | Where-Object -FilterScript {$_.content_type -eq "application/vnd.android.package-archive"}).browser_download_url
 $TAG = $apiResult.tag_name
 $Parameters = @{
     Uri             = $URL
