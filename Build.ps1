@@ -18,9 +18,14 @@
 # Requires -Version 5.1
 # Doesn't work on PowerShell 7.2 due it doesn't contains IE parser engine. You have to use a 3rd party module to make it work like it's presented in CI/CD config: AngleSharp
 
-# Invoke-Webrequest speedup workaround. Improved downloads speeds significantly. 
-# Ref: https://www.codewrecks.com/post/azdo/pills/powershell-download/
-$ProgressPreference = 'SilentlyContinue'
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+
+if ($Host.Version.Major -eq 5)
+{
+	# Progress bar can significantly impact cmdlet performance
+	# https://github.com/PowerShell/PowerShell/issues/2138
+	$Script:ProgressPreference = "SilentlyContinue"
+}
 
 # Download all files to "Script location folder\ReVanced"
 $WorkingFolder = Split-Path $MyInvocation.MyCommand.Path -Parent
@@ -39,49 +44,21 @@ $Parameters = @{
 $JSON = Invoke-RestMethod @Parameters
 $versions = ($JSON | Where-Object -FilterScript {$_.compatiblePackages.name -eq "com.google.android.youtube"}).compatiblePackages.versions
 $LatestSupported = $versions | Sort-Object -Descending -Unique | Select-Object -First 1
-$LatestSupported = $LatestSupported.replace(".", "-")
 
-# Try to find correct NON-Bundle version
+# We need a NON-bundle version
+# https://apkpure.net/ru/youtube/com.google.android.youtube/versions
 $Parameters = @{
-    Uri             = "https://www.apkmirror.com/apk/google-inc/youtube/youtube-$($LatestSupported)-release/youtube-$($LatestSupported)-android-apk-download/"
-    UseBasicParsing = $false # Disabled
-    Verbose         = $true
+	Uri             = "https://apkpure.net/youtube/com.google.android.youtube/download/$($LatestSupported)"
+	UseBasicParsing = $true
+	Verbose         = $true
 }
-$URLParse = (Invoke-Webrequest @Parameters).Links.outerHTML | Where-Object -FilterScript {$_ -like "*YouTube $($LatestSupported.replace("-", ".")) (nodpi)*"}
-# Check if variable contains a data
-if ($URLParse)
-{
-    $URL = "https://www.apkmirror.com/apk/google-inc/youtube/youtube-$($LatestSupported)-release/youtube-$($LatestSupported)-android-apk-download/"
-}
-else
-{
-    $URL = "https://www.apkmirror.com/apk/google-inc/youtube/youtube-$($LatestSupported)-release/youtube-$($LatestSupported)-2-android-apk-download/"
-}
-
-# Get unique key to generate direct link
-$Parameters = @{
-    Uri             = $URL
-    UseBasicParsing = $false # Disabled
-    Verbose         = $true
-}
-$Request = Invoke-Webrequest @Parameters
-$nameProp = $Request.ParsedHtml.getElementsByClassName("accent_bg btn btn-flat downloadButton") | ForEach-Object -Process {$_.nameProp}
+$URL = (Invoke-Webrequest @Parameters).Links.href | Where-Object -FilterScript {$_ -match "APK/com.google.android.youtube"} | Select-Object -Index 1
 
 $Parameters = @{
-    Uri = "$($URL)/download/$($nameProp)"
-    UseBasicParsing = $false # Disabled
-    Verbose         = $true
-}
-$URL_Part = ((Invoke-Webrequest @Parameters).Links | Where-Object -FilterScript {$_.innerHTML -eq "here"}).href
-# Replace "&amp;" with "&" to make it work
-$URL_Part = $URL_Part.Replace("&amp;", "&")
-
-# Finally, get the real link
-$Parameters = @{
-    Uri             = "https://www.apkmirror.com$URL_Part"
-    OutFile         = "$WorkingFolder\ReVanced\youtube.apk"
-    UseBasicParsing = $true
-    Verbose         = $true
+	Uri             = $URL
+	OutFile         = "$WorkingFolder\ReVanced\youtube.apk"
+	UseBasicParsing = $true
+	Verbose         = $true
 }
 Invoke-Webrequest @Parameters
 
@@ -91,7 +68,7 @@ $Parameters = @{
     UseBasicParsing = $true
     Verbose         = $true
 }
-$URL = (Invoke-RestMethod @Parameters).assets.browser_download_url
+$URL = ((Invoke-RestMethod @Parameters).assets | Where-Object -FilterScript {$_.content_type -eq "application/java-archive"}).browser_download_url
 $Parameters = @{
     Uri             = $URL
     Outfile         = "$WorkingFolder\ReVanced\revanced-cli.jar"
@@ -121,7 +98,7 @@ $Parameters = @{
     UseBasicParsing = $true
     Verbose         = $true
 }
-$URL = (Invoke-RestMethod @Parameters).assets.browser_download_url
+$URL = ((Invoke-RestMethod @Parameters).assets | Where-Object -FilterScript {$_.content_type -eq "application/vnd.android.package-archive"}).browser_download_url
 $Parameters = @{
     Uri             = $URL
     Outfile         = "$WorkingFolder\ReVanced\revanced-integrations.apk"
