@@ -51,7 +51,6 @@ jobs:
           --purge `
           --out "Temp\revanced.apk" `
           "Temp\youtube.apk"
-          # --resource-cache "Temp\Temp" `
 
       - name: Create archive
         run: |
