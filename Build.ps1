@@ -5,7 +5,7 @@
       * ReVanced CLI;
       * ReVanced Patches;
       * ReVanced Integrations;
-      * microG GmsCore;
+      * ReVanced microG GmsCore;
       * Azul Zulu.
 
     .NOTES
@@ -34,14 +34,13 @@ if (-not (Test-Path -Path "$WorkingFolder\ReVanced"))
     New-Item -Path "$WorkingFolder\ReVanced" -ItemType Directory -Force
 }
 
-# Get latest supported YouTube client version via ReVanced JSON
-# It will let us to download always latest YouTube apk supported by ReVanced team
-# https://github.com/revanced/revanced-patches/blob/main/patches.json
+# Get the latest supported YouTube version to patch
+# https://api.revanced.app/docs/swagger
 $Parameters = @{
-    Uri             = "https://raw.githubusercontent.com/revanced/revanced-patches/main/patches.json"
+    Uri             = "https://api.revanced.app/v2/patches/latest"
     UseBasicParsing = $true
 }
-$JSON = Invoke-RestMethod @Parameters
+$JSON = (Invoke-RestMethod @Parameters).patches
 $versions = ($JSON | Where-Object -FilterScript {$_.compatiblePackages.name -eq "com.google.android.youtube"}).compatiblePackages.versions
 $LatestSupported = $versions | Sort-Object -Descending -Unique | Select-Object -First 1
 
@@ -107,9 +106,9 @@ $Parameters = @{
 }
 Invoke-RestMethod @Parameters
 
-# https://github.com/inotia00/VancedMicroG
+# https://github.com/ReVanced/GmsCore
 $Parameters = @{
-    Uri             = "https://api.github.com/repos/inotia00/VancedMicroG/releases/latest"
+    Uri             = "https://api.github.com/repos/ReVanced/GmsCore/releases/latest"
     UseBasicParsing = $true
     Verbose         = $true
 }
@@ -164,7 +163,7 @@ Remove-Item -Path "$WorkingFolder\ReVanced\jdk_windows-x64_bin.zip" -Force
 --exclude "Hide timestamp" `
 --exclude "Hide seekbar" `
 --purge `
---resource-cache "$WorkingFolder\ReVanced\Temp" `
+--temporary-files-path "$WorkingFolder\ReVanced\Temp" `
 --out "$WorkingFolder\ReVanced\revanced.apk" `
 "$WorkingFolder\ReVanced\youtube.apk"
 
