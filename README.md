@@ -9,12 +9,12 @@ Build ReVanced package (.apk) easily than ever using latest ReVanced patches and
 ### Locally
 
 * To build `revanced.apk` locally you need just to run [`Build.ps1`](https://github.com/JDM170/ReVanced_Builder/blob/main/Build.ps1) via PowerShell;
-* All [patches](https://github.com/revanced/revanced-patches) except the followings applied to `revanced.apk`:
+* All [patches](https://revanced.app/patches?pkg=com.google.android.youtube) except the followings applied to `revanced.apk`:
   * always-autorepeat
   * hide-captions-button
   * hide-timestamp
   * hide-seekbar
-* The script downloads latest available YouTube package (having parsed [JSON](https://github.com/revanced/revanced-patches/blob/main/patches.json)) supported by ReVanced Team from <https://apkmirror.com> and all dependencies and build package using [Zulu JDK](https://www.azul.com/downloads/?package=jdk);
+* The script downloads latest available YouTube package (having parsed [ReVanced API](https://api.revanced.app/v2/patches/latest)) supported by ReVanced Team from <https://apkpure.net> and all dependencies and build package using [Zulu JDK](https://www.azul.com/downloads/?package=jdk);
 * Script installs no apps — everything will be held in your `Script location folder\ReVanced`;
 * After compiling you get `revanced.apk` & `microg.apk` ready to be installed;
 * Release notes are generated dynamically using the [ReleaseNotesTemplate.md](https://github.com/JDM170/ReVanced_Builder/blob/main/ReleaseNotesTemplate.md) template.
@@ -36,11 +36,11 @@ Trigger the [`Build`](https://github.com/JDM170/ReVanced_Builder/actions/workflo
 
 ## Links
 
-* [APKMirror](https://apkmirror.com)
+* [APKPure](https://apkpure.net)
 * [ReVanced CLI](https://github.com/revanced/revanced-cli)
 * [ReVanced Patches](https://github.com/revanced/revanced-patches)
 * [ReVanced Integrations](https://github.com/revanced/revanced-integrations)
-* [Vanced MicroG](https://github.com/TeamVanced/VancedMicroG)
+* [ReVanced MicroG](https://github.com/ReVanced/GmsCore)
 * [AngleSharp](https://github.com/AngleSharp/AngleSharp)
 * [Zulu JDK](https://github.com/ScoopInstaller/Java)
 * [Sophia Telegram chat](https://t.me/sophia_chat)
