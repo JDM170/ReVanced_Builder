@@ -56,7 +56,7 @@ jobs:
         run: |
           Get-ChildItem Temp\Temp -Recurse -Force
           $Parameters = @{
-              Path             = "Temp\revanced.apk", "Temp\microg.apk"
+              Path             = "Temp\revanced.apk", "Temp\microg.apk", "Temp\microg-hw.apk"
               DestinationPath  = "ReVanced.zip"
               CompressionLevel = "Fastest"
               Force            = $true

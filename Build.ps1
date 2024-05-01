@@ -112,14 +112,21 @@ $Parameters = @{
     UseBasicParsing = $true
     Verbose         = $true
 }
-$URL = (Invoke-RestMethod @Parameters).assets.browser_download_url
-$Parameters = @{
-    Uri             = $URL
-    Outfile         = "$WorkingFolder\ReVanced\microg.apk"
-    UseBasicParsing = $true
-    Verbose         = $true
+$URL = (Invoke-RestMethod @Parameters).assets
+foreach($url in $URL) {
+    if ($url.name.Contains("-hw-")) {
+        $url.name = "microg-hw.apk"
+    } else {
+        $url.name = "microg.apk"
+    }
+    $Parameters = @{
+        Uri             = $url.browser_download_url
+        Outfile         = "$WorkingFolder\ReVanced\$($url.name)"
+        UseBasicParsing = $true
+        Verbose         = $true
+    }
+    Invoke-RestMethod @Parameters
 }
-Invoke-RestMethod @Parameters
 
 # Sometimes older version of zulu-jdk causes conflict, so remove older version before proceeding.
 if (Test-Path -Path "$WorkingFolder\ReVanced\jdk")

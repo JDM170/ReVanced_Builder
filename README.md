@@ -30,9 +30,7 @@ Trigger the [`Build`](https://github.com/JDM170/ReVanced_Builder/actions/workflo
 ## Requirements if you compile locally
 
 * Windows 10 x64 or Windows 11
-* Windows PowerShell 5.1
-  * PowerShell 7 won't work due to it doesn't contain Trident HTML parser, so I have to use a 3rd party parser [AngleSharp](https://github.com/AngleSharp/AngleSharp);
-  * If you still want it, [get](https://github.com/JDM170/ReVanced_Builder/blob/main/.github/workflows/Build.yml) code from Actions (it's run in PowerShell 7).
+* Windows PowerShell 5.1/7
 
 ## Links
 
