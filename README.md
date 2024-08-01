@@ -35,6 +35,7 @@ Trigger the [`Build`](https://github.com/JDM170/ReVanced_Builder/actions/workflo
 ## Links
 
 * [APKPure](https://apkpure.net)
+* [APKMirror](https://apkmirror.com)
 * [ReVanced CLI](https://github.com/revanced/revanced-cli)
 * [ReVanced Patches](https://github.com/revanced/revanced-patches)
 * [ReVanced Integrations](https://github.com/revanced/revanced-integrations)

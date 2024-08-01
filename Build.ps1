@@ -45,6 +45,7 @@ $versions = ($JSON | Where-Object -FilterScript {$_.compatiblePackages.name -eq 
 $LatestSupported = $versions | Sort-Object -Descending -Unique | Select-Object -First 1
 
 # We need a NON-bundle version
+<#
 # https://apkpure.net/ru/youtube/com.google.android.youtube/versions
 $Parameters = @{
     Uri             = "https://apkpure.net/youtube/com.google.android.youtube/download/$($LatestSupported)"
@@ -55,6 +56,54 @@ $URL = (Invoke-Webrequest @Parameters).Links.href | Where-Object -FilterScript {
 
 $Parameters = @{
     Uri             = $URL
+    OutFile         = "$WorkingFolder\ReVanced\youtube.apk"
+    UseBasicParsing = $true
+    Verbose         = $true
+}
+Invoke-Webrequest @Parameters
+#>
+
+# https://www.apkmirror.com/apk/google-inc/youtube/
+$apkMirrorLink = "https://www.apkmirror.com/apk/google-inc/youtube/youtube-$($LatestSupported)-release/"
+$Parameters = @{
+    Uri             = $apkMirrorLink
+    UseBasicParsing = $false # Disabled
+    Verbose         = $true
+}
+$Request = Invoke-Webrequest @Parameters
+$Request.ParsedHtml.getElementsByClassName("table-row headerFont") | ForEach-Object -Process {
+    foreach ($child in $_.children)
+    {
+        if ($child.innerText -eq "nodpi")
+        {
+            $apkPackageLink = ($_.getElementsByTagName("a") | Select-Object -First 1).nameProp
+            break
+        }
+    }
+}
+$apkMirrorLink += $apkPackageLink # actual APK link (not BUNDLE)
+
+# Get unique key to generate direct link
+$Parameters = @{
+    Uri             = $apkMirrorLink
+    UseBasicParsing = $false # Disabled
+    Verbose         = $true
+}
+$Request = Invoke-Webrequest @Parameters
+$nameProp = $Request.ParsedHtml.getElementsByClassName("accent_bg btn btn-flat downloadButton") | ForEach-Object -Process {$_.nameProp}
+
+$Parameters = @{
+    Uri = $apkMirrorLink + "/download/$($nameProp)"
+    UseBasicParsing = $false # Disabled
+    Verbose         = $true
+}
+$URL_Part = ((Invoke-Webrequest @Parameters).Links | Where-Object -FilterScript {$_.innerHTML -eq "here"}).href
+# Replace "&amp;" with "&" to make it work
+$URL_Part = $URL_Part.Replace("&amp;", "&")
+
+# Finally, get the real link
+$Parameters = @{
+    Uri             = "https://www.apkmirror.com$URL_Part"
     OutFile         = "$WorkingFolder\ReVanced\youtube.apk"
     UseBasicParsing = $true
     Verbose         = $true

@@ -10,6 +10,10 @@ jobs:
     steps:
       - uses: actions/checkout@main
 
+      - name: Install AngleSharp
+        run: |
+          Install-Package AngleSharp -Source https://www.nuget.org/api/v2 -SkipDependencies -Force
+
       - name: Download YouTube
         run: |
           New-Item -Path Temp -ItemType Directory -Force
