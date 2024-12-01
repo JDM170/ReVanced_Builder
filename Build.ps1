@@ -35,14 +35,16 @@ if (-not (Test-Path -Path "$WorkingFolder\ReVanced"))
 }
 
 # Get the latest supported YouTube version to patch
-# https://api.revanced.app/docs/swagger
+# https://api.revanced.app
 $Parameters = @{
-    Uri             = "https://api.revanced.app/v2/patches/latest"
+    Uri             = "https://api.revanced.app/v4/patches/list"
     UseBasicParsing = $true
 }
-$JSON = (Invoke-RestMethod @Parameters).patches
-$versions = ($JSON | Where-Object -FilterScript {$_.compatiblePackages.name -eq "com.google.android.youtube"}).compatiblePackages.versions
-$LatestSupported = $versions | Sort-Object -Descending -Unique | Select-Object -First 1
+$JSON = (Invoke-Webrequest @Parameters).Content | ConvertFrom-Json
+$versions = ($JSON | Where-Object -FilterScript {$_.name -eq "Video ads"})
+$LatestSupported = $versions.compatiblePackages.'com.google.android.youtube' | Sort-Object -Descending -Unique | Select-Object -First 1
+
+Write-Verbose -Message "Downloading the latest supported YouTube apk" -Verbose
 
 # We need a NON-bundle version
 <#
@@ -110,6 +112,8 @@ $Parameters = @{
 }
 Invoke-Webrequest @Parameters
 
+Write-Verbose -Message "" -Verbose
+Write-Verbose -Message "Downloading ReVanced CLI" -Verbose
 # https://github.com/revanced/revanced-cli
 $Parameters = @{
     Uri             = "https://api.github.com/repos/revanced/revanced-cli/releases/latest"
@@ -125,36 +129,25 @@ $Parameters = @{
 }
 Invoke-RestMethod @Parameters
 
+Write-Verbose -Message "" -Verbose
+Write-Verbose -Message "Downloading ReVanced patches" -Verbose
 # https://github.com/revanced/revanced-patches
 $Parameters = @{
     Uri             = "https://api.github.com/repos/revanced/revanced-patches/releases/latest"
     UseBasicParsing = $true
     Verbose         = $true
 }
-$URL = ((Invoke-RestMethod @Parameters).assets | Where-Object -FilterScript {$_.content_type -eq "application/java-archive"}).browser_download_url
+$URL = ((Invoke-RestMethod @Parameters).assets | Where-Object -FilterScript {$_.content_type -eq "text/plain"}).browser_download_url
 $Parameters = @{
     Uri             = $URL
-    Outfile         = "$WorkingFolder\ReVanced\revanced-patches.jar"
+    Outfile         = "$WorkingFolder\ReVanced\revanced-patches.rvp"
     UseBasicParsing = $true
     Verbose         = $true
 }
 Invoke-RestMethod @Parameters
 
-# https://github.com/revanced/revanced-integrations
-$Parameters = @{
-    Uri             = "https://api.github.com/repos/revanced/revanced-integrations/releases/latest"
-    UseBasicParsing = $true
-    Verbose         = $true
-}
-$URL = ((Invoke-RestMethod @Parameters).assets | Where-Object -FilterScript {$_.content_type -eq "application/vnd.android.package-archive"}).browser_download_url
-$Parameters = @{
-    Uri             = $URL
-    Outfile         = "$WorkingFolder\ReVanced\revanced-integrations.apk"
-    UseBasicParsing = $true
-    Verbose         = $true
-}
-Invoke-RestMethod @Parameters
-
+Write-Verbose -Message "" -Verbose
+Write-Verbose -Message "Downloading ReVanced GmsCore" -Verbose
 # https://github.com/ReVanced/GmsCore
 $Parameters = @{
     Uri             = "https://api.github.com/repos/ReVanced/GmsCore/releases/latest"
@@ -183,6 +176,8 @@ if (Test-Path -Path "$WorkingFolder\ReVanced\jdk")
     Remove-Item -Path "$WorkingFolder\ReVanced\jdk" -Recurse -Force
 }
 
+Write-Verbose -Message "" -Verbose
+Write-Verbose -Message "Downloading Azul Zulu" -Verbose
 # https://github.com/ScoopInstaller/Java/blob/master/bucket/zulu-jdk.json
 $Parameters = @{
     Uri             = "https://raw.githubusercontent.com/ScoopInstaller/Java/master/bucket/zulu-jdk.json"
@@ -212,12 +207,11 @@ Remove-Item -Path "$WorkingFolder\ReVanced\jdk_windows-x64_bin.zip" -Force
 # Let's create patched APK
 & "$WorkingFolder\ReVanced\jdk\zulu*win_x64\bin\java.exe" `
 -jar "$WorkingFolder\ReVanced\revanced-cli.jar" patch `
---patch-bundle "$WorkingFolder\ReVanced\revanced-patches.jar" `
---merge "$WorkingFolder\ReVanced\revanced-integrations.apk" `
---exclude "Always repeat" `
---exclude "Hide captions button" `
---exclude "Hide timestamp" `
---exclude "Hide seekbar" `
+--patches "$WorkingFolder\ReVanced\revanced-patches.rvp" `
+--disable "Always repeat" `
+--disable "Disable auto captions" `
+--disable "Hide timestamp" `
+--disable "Hide seekbar" `
 --purge `
 --temporary-files-path "$WorkingFolder\ReVanced\Temp" `
 --out "$WorkingFolder\ReVanced\revanced.apk" `

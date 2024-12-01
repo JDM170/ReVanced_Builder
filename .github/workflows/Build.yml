@@ -28,10 +28,6 @@ jobs:
         run: |
           . Scripts\ReVanced_Patches.ps1
 
-      - name: Download ReVanced Integrations
-        run: |
-          . Scripts\ReVanced_Intergrations.ps1
-
       - name: Download Vanced MicroG
         run: |
           . Scripts\MicroG.ps1
@@ -46,12 +42,11 @@ jobs:
 
           & $JavaPath `
           -jar "Temp\revanced-cli.jar" patch `
-          --patch-bundle "Temp\revanced-patches.jar" `
-          --merge "Temp\revanced-integrations.apk" `
-          --exclude "Always repeat" `
-          --exclude "Hide captions button" `
-          --exclude "Hide timestamp" `
-          --exclude "Hide seekbar" `
+          --patches "Temp\revanced-patches.rvp" `
+          --disable "Always repeat" `
+          --disable "Disable auto captions" `
+          --disable "Hide timestamp" `
+          --disable "Hide seekbar" `
           --purge `
           --out "Temp\revanced.apk" `
           "Temp\youtube.apk"
@@ -71,7 +66,7 @@ jobs:
         id: read_release
         run: |
           # https://en.wikipedia.org/wiki/Percent-encoding
-          (Get-Content -Path ReleaseNotesTemplate.md -Encoding utf8 -Raw).replace("YouTubeTag", "${{ env.LatestSupportedYT }}").replace("CLITag", "${{ env.CLIvtag }}").replace("PatchesTag", "${{ env.Patchesvtag }}").replace("IntegrationsTag", "${{ env.IntegrationsTag }}").replace("MicroGTag", "${{ env.MicroGTag }}").replace("ZuluTag", "${{ env.ZuluTag }}") | Set-Content -Path ReleaseNotesTemplate.md -Encoding utf8 -Force
+          (Get-Content -Path ReleaseNotesTemplate.md -Encoding utf8 -Raw).replace("YouTubeTag", "${{ env.LatestSupportedYT }}").replace("CLITag", "${{ env.CLIvtag }}").replace("PatchesTag", "${{ env.Patchesvtag }}").replace("MicroGTag", "${{ env.MicroGTag }}").replace("ZuluTag", "${{ env.ZuluTag }}") | Set-Content -Path ReleaseNotesTemplate.md -Encoding utf8 -Force
           # https://trstringer.com/github-actions-multiline-strings/
           Add-Content -Path $env:GITHUB_OUTPUT -Value "ReleaseBody=ReleaseNotesTemplate.md"
           $ReleaseName = Get-Date -f "yyyy.MM.dd"

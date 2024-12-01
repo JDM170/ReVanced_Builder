@@ -5,11 +5,11 @@ $Parameters = @{
     Verbose         = $true
 }
 $apiResult = Invoke-RestMethod @Parameters
-$URL = ($apiResult.assets | Where-Object -FilterScript {$_.content_type -eq "application/java-archive"}).browser_download_url
+$URL = ($apiResult.assets | Where-Object -FilterScript {$_.content_type -eq "text/plain"}).browser_download_url
 $TAG = $apiResult.tag_name
 $Parameters = @{
     Uri             = $URL
-    Outfile         = "Temp\revanced-patches.jar"
+    Outfile         = "Temp\revanced-patches.rvp"
     UseBasicParsing = $true
     Verbose         = $true
 }
