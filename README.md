@@ -14,7 +14,7 @@ Build ReVanced package (.apk) easily than ever using latest ReVanced patches and
   * hide-captions-button
   * hide-timestamp
   * hide-seekbar
-* The script downloads latest available YouTube package (having parsed [ReVanced API](https://api.revanced.app/v2/patches/latest)) supported by ReVanced Team from [APKMirror](https://apkmirror.com) and all dependencies and build package using [Zulu JDK](https://www.azul.com/downloads/?package=jdk);
+* The script downloads latest available YouTube package (having parsed [ReVanced API](https://api.revanced.app/v4/patches/list)) supported by ReVanced Team from [APKMirror](https://apkmirror.com) and all dependencies and build package using [Zulu JDK](https://www.azul.com/downloads/?package=jdk);
 * Script installs no apps — everything will be held in your `Script location folder\ReVanced`;
 * After compiling you get `revanced.apk` & `microg.apk` ready to be installed;
 * Release notes are generated dynamically using the [ReleaseNotesTemplate.md](https://github.com/JDM170/ReVanced_Builder/blob/main/ReleaseNotesTemplate.md) template.
@@ -30,7 +30,8 @@ Trigger the [`Build`](https://github.com/JDM170/ReVanced_Builder/actions/workflo
 ## Requirements if you compile locally
 
 * Windows 10 x64 or Windows 11
-* Windows PowerShell 5.1/7
+* Windows PowerShell 5.1
+  * if you want to use PowerShell 7, you will have to install a 3rd party HTML parser ([AngleSharp](https://github.com/AngleSharp/AngleSharp))
 
 ## Links
 
@@ -38,7 +39,6 @@ Trigger the [`Build`](https://github.com/JDM170/ReVanced_Builder/actions/workflo
 * [APKMirror](https://apkmirror.com)
 * [ReVanced CLI](https://github.com/revanced/revanced-cli)
 * [ReVanced Patches](https://github.com/revanced/revanced-patches)
-* [ReVanced Integrations](https://github.com/revanced/revanced-integrations)
 * [ReVanced MicroG](https://github.com/ReVanced/GmsCore)
 * [AngleSharp](https://github.com/AngleSharp/AngleSharp)
 * [Zulu JDK](https://github.com/ScoopInstaller/Java)
