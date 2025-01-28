@@ -223,4 +223,13 @@ Remove-Item -Path "$WorkingFolder\ReVanced\jdk_windows-x64_bin.zip" -Force
 # Remove temp directory, because cli failed to clean up directory
 # Remove-Item -Path "$WorkingFolder\ReVanced\Temp" -Recurse -Force -Confirm:$false
 
+$Files = @(
+	"$WorkingFolder\ReVanced\Temp",
+	"$WorkingFolder\ReVanced\jdk",
+	"$WorkingFolder\ReVanced\revanced-cli.jar",
+	"$WorkingFolder\ReVanced\revanced-patches.rvp",
+	"$WorkingFolder\ReVanced\youtube.apk"
+)
+Remove-Item -Path $Files -Recurse -Force
+
 Write-Warning -Message "Latest available revanced.apk & microg.apk are ready in `"$WorkingFolder\ReVanced`""
