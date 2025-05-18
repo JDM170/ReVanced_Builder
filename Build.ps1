@@ -28,10 +28,10 @@ if ($Host.Version.Major -eq 5)
 }
 
 # Download all files to "Script location folder\ReVanced"
-$WorkingFolder = Split-Path $MyInvocation.MyCommand.Path -Parent
-if (-not (Test-Path -Path "$WorkingFolder\ReVanced"))
+$CurrentFolder = Split-Path $MyInvocation.MyCommand.Path -Parent
+if (-not (Test-Path -Path "$CurrentFolder\ReVanced"))
 {
-    New-Item -Path "$WorkingFolder\ReVanced" -ItemType Directory -Force
+    New-Item -Path "$CurrentFolder\ReVanced" -ItemType Directory -Force
 }
 
 # Get the latest supported YouTube version to patch
@@ -44,6 +44,7 @@ $JSON = (Invoke-Webrequest @Parameters).Content | ConvertFrom-Json
 $versions = ($JSON | Where-Object -FilterScript {$_.name -eq "Video ads"})
 $LatestSupported = $versions.compatiblePackages.'com.google.android.youtube' | Sort-Object -Descending -Unique | Select-Object -First 1
 
+Write-Verbose -Message "" -Verbose
 Write-Verbose -Message "Downloading the latest supported YouTube apk" -Verbose
 
 # We need a NON-bundle version
@@ -58,7 +59,7 @@ $URL = (Invoke-Webrequest @Parameters).Links.href | Where-Object -FilterScript {
 
 $Parameters = @{
     Uri             = $URL
-    OutFile         = "$WorkingFolder\ReVanced\youtube.apk"
+    OutFile         = "$CurrentFolder\ReVanced\youtube.apk"
     UseBasicParsing = $true
     Verbose         = $true
 }
@@ -106,7 +107,7 @@ $URL_Part = $URL_Part.Replace("&amp;", "&")
 # Finally, get the real link
 $Parameters = @{
     Uri             = "https://www.apkmirror.com$URL_Part"
-    OutFile         = "$WorkingFolder\ReVanced\youtube.apk"
+    OutFile         = "$CurrentFolder\ReVanced\youtube.apk"
     UseBasicParsing = $true
     Verbose         = $true
 }
@@ -123,7 +124,7 @@ $Parameters = @{
 $URL = ((Invoke-RestMethod @Parameters).assets | Where-Object -FilterScript {$_.content_type -eq "application/java-archive"}).browser_download_url
 $Parameters = @{
     Uri             = $URL
-    Outfile         = "$WorkingFolder\ReVanced\revanced-cli.jar"
+    Outfile         = "$CurrentFolder\ReVanced\revanced-cli.jar"
     UseBasicParsing = $true
     Verbose         = $true
 }
@@ -140,7 +141,7 @@ $Parameters = @{
 $URL = ((Invoke-RestMethod @Parameters).assets | Where-Object -FilterScript {$_.content_type -eq "text/plain"}).browser_download_url
 $Parameters = @{
     Uri             = $URL
-    Outfile         = "$WorkingFolder\ReVanced\revanced-patches.rvp"
+    Outfile         = "$CurrentFolder\ReVanced\revanced-patches.rvp"
     UseBasicParsing = $true
     Verbose         = $true
 }
@@ -163,7 +164,7 @@ foreach($url in $URL) {
     }
     $Parameters = @{
         Uri             = $url.browser_download_url
-        Outfile         = "$WorkingFolder\ReVanced\$($url.name)"
+        Outfile         = "$CurrentFolder\ReVanced\$($url.name)"
         UseBasicParsing = $true
         Verbose         = $true
     }
@@ -171,9 +172,9 @@ foreach($url in $URL) {
 }
 
 # Sometimes older version of zulu-jdk causes conflict, so remove older version before proceeding.
-if (Test-Path -Path "$WorkingFolder\ReVanced\jdk")
+if (Test-Path -Path "$CurrentFolder\ReVanced\jdk")
 {
-    Remove-Item -Path "$WorkingFolder\ReVanced\jdk" -Recurse -Force
+    Remove-Item -Path "$CurrentFolder\ReVanced\jdk" -Recurse -Force
 }
 
 Write-Verbose -Message "" -Verbose
@@ -187,7 +188,7 @@ $Parameters = @{
 $URL = (Invoke-RestMethod @Parameters).architecture."64bit".url
 $Parameters = @{
     Uri             = $URL
-    Outfile         = "$WorkingFolder\ReVanced\jdk_windows-x64_bin.zip"
+    Outfile         = "$CurrentFolder\ReVanced\jdk_windows-x64_bin.zip"
     UseBasicParsing = $true
     Verbose         = $true
 }
@@ -195,41 +196,41 @@ Invoke-RestMethod @Parameters
 
 # Expand jdk_windows-x64_bin archive
 $Parameters = @{
-    Path            = "$WorkingFolder\ReVanced\jdk_windows-x64_bin.zip"
-    DestinationPath = "$WorkingFolder\ReVanced\jdk"
+    Path            = "$CurrentFolder\ReVanced\jdk_windows-x64_bin.zip"
+    DestinationPath = "$CurrentFolder\ReVanced\jdk"
     Force           = $true
     Verbose         = $true
 }
 Expand-Archive @Parameters
 
-Remove-Item -Path "$WorkingFolder\ReVanced\jdk_windows-x64_bin.zip" -Force
+Remove-Item -Path "$CurrentFolder\ReVanced\jdk_windows-x64_bin.zip" -Force
 
 # Let's create patched APK
-& "$WorkingFolder\ReVanced\jdk\zulu*win_x64\bin\java.exe" `
--jar "$WorkingFolder\ReVanced\revanced-cli.jar" patch `
---patches "$WorkingFolder\ReVanced\revanced-patches.rvp" `
+& "$CurrentFolder\ReVanced\jdk\zulu*win_x64\bin\java.exe" `
+-jar "$CurrentFolder\ReVanced\revanced-cli.jar" patch `
+--patches "$CurrentFolder\ReVanced\revanced-patches.rvp" `
 --disable "Always repeat" `
 --disable "Disable auto captions" `
 --disable "Hide timestamp" `
 --disable "Hide seekbar" `
 --purge `
---temporary-files-path "$WorkingFolder\ReVanced\Temp" `
---out "$WorkingFolder\ReVanced\revanced.apk" `
-"$WorkingFolder\ReVanced\youtube.apk"
+--temporary-files-path "$CurrentFolder\ReVanced\Temp" `
+--out "$CurrentFolder\ReVanced\revanced.apk" `
+"$CurrentFolder\ReVanced\youtube.apk"
 
 # Open working directory with builded files
-# Invoke-Item -Path "$WorkingFolder\ReVanced"
+# Invoke-Item -Path "$CurrentFolder\ReVanced"
 
 # Remove temp directory, because cli failed to clean up directory
-# Remove-Item -Path "$WorkingFolder\ReVanced\Temp" -Recurse -Force -Confirm:$false
+# Remove-Item -Path "$CurrentFolder\ReVanced\Temp" -Recurse -Force -Confirm:$false
 
 $Files = @(
-	"$WorkingFolder\ReVanced\Temp",
-	"$WorkingFolder\ReVanced\jdk",
-	"$WorkingFolder\ReVanced\revanced-cli.jar",
-	"$WorkingFolder\ReVanced\revanced-patches.rvp",
-	"$WorkingFolder\ReVanced\youtube.apk"
+    "$CurrentFolder\ReVanced\Temp",
+    "$CurrentFolder\ReVanced\jdk",
+    "$CurrentFolder\ReVanced\revanced-cli.jar",
+    "$CurrentFolder\ReVanced\revanced-patches.rvp",
+    "$CurrentFolder\ReVanced\youtube.apk"
 )
 Remove-Item -Path $Files -Recurse -Force
 
-Write-Warning -Message "Latest available revanced.apk & microg.apk are ready in `"$WorkingFolder\ReVanced`""
+Write-Warning -Message "Latest available revanced.apk & microg.apk are ready in `"$CurrentFolder\ReVanced`""
