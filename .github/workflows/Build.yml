@@ -38,6 +38,11 @@ jobs:
         run: |
           . Scripts\Zulu_JDK.ps1
 
+      - name: Add keystore from secrets
+        run: |
+          [byte[]]$bytes = [convert]::FromBase64String('${{ secrets.REVANCED_KEYSTORE }}')
+          [System.IO.File]::WriteAllBytes("Temp\revanced.keystore", $bytes)
+
       - name: Build
         run: |
           $JavaPath = (Resolve-Path -Path "Temp\jdk_windows-x64_bin\zulu*win_x64\bin\java.exe").Path
