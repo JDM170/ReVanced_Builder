@@ -39,8 +39,11 @@ jobs:
           . Scripts\Zulu_JDK.ps1
 
       - name: Add keystore from secrets
+        env:
+          KEYSTORE: ${{ secrets.REVANCED_KEYSTORE }}
+        if: ${{ env.KEYSTORE != '' }}
         run: |
-          [byte[]]$bytes = [convert]::FromBase64String('${{ secrets.REVANCED_KEYSTORE }}')
+          [byte[]]$bytes = [convert]::FromBase64String('${{ env.KEYSTORE }}')
           [System.IO.File]::WriteAllBytes("Temp\revanced.keystore", $bytes)
 
       - name: Build
@@ -85,3 +88,4 @@ jobs:
           tag_name: ${{ env.RELEASE_NAME }}
           body_path: ${{ steps.read_release.outputs.ReleaseBody }}
           files: ReVanced.zip
+
