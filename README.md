@@ -10,10 +10,10 @@ Build ReVanced package (.apk) easily than ever using latest ReVanced patches and
 
 * To build `revanced.apk` locally you need just to run [`Build.ps1`](https://github.com/JDM170/ReVanced_Builder/blob/main/Build.ps1) via PowerShell;
 * All [patches](https://revanced.app/patches?pkg=com.google.android.youtube) except the followings applied to `revanced.apk`:
-  * always-autorepeat
-  * hide-captions-button
-  * hide-timestamp
-  * hide-seekbar
+  * Always repeat
+  * Disable auto captions
+  * Hide timestamp
+  * Hide seekbar
 * The script downloads latest available YouTube package (having parsed [ReVanced API](https://api.revanced.app/v4/patches/list)) supported by ReVanced Team from [APKMirror](https://apkmirror.com) and all dependencies and build package using [Zulu JDK](https://www.azul.com/downloads/?package=jdk);
 * Script installs no apps — everything will be held in your `Script location folder\ReVanced`;
 * After compiling you get `revanced.apk` & `microg.apk` ready to be installed;
