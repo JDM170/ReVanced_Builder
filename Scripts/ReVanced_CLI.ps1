@@ -9,7 +9,7 @@ $URL = ($apiResult.assets | Where-Object -FilterScript {$_.content_type -eq "app
 $TAG = $apiResult.tag_name
 $Parameters = @{
     Uri             = $URL
-    Outfile         = "Temp\revanced-cli.jar"
+    Outfile         = "ReVanced\revanced-cli.jar"
     UseBasicParsing = $true
     Verbose         = $true
 }

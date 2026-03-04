@@ -14,7 +14,7 @@ foreach($url in $apiResult.assets) {
     }
     $Parameters = @{
         Uri             = $url.browser_download_url
-        Outfile         = "Temp\$($url.name)"
+        Outfile         = "ReVanced\$($url.name)"
         UseBasicParsing = $true
         Verbose         = $true
     }

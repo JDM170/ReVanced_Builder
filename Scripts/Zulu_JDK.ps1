@@ -9,7 +9,7 @@ $URL = $apiResult.architecture."64bit".url
 $TAG = $apiResult.version
 $Parameters = @{
     Uri             = $URL
-    Outfile         = "Temp\jdk_windows-x64_bin.zip"
+    Outfile         = "ReVanced\jdk_windows-x64_bin.zip"
     UseBasicParsing = $true
     Verbose         = $true
 }
@@ -20,11 +20,11 @@ echo "ZuluTag=$TAG" >> $env:GITHUB_ENV
 Write-Verbose -Message "Expanding Zulu JDK" -Verbose
 
 $Parameters = @{
-    Path            = "Temp\jdk_windows-x64_bin.zip"
-    DestinationPath = "Temp\jdk_windows-x64_bin"
+    Path            = "ReVanced\jdk_windows-x64_bin.zip"
+    DestinationPath = "ReVanced\jdk_windows-x64_bin"
     Force           = $true
     Verbose         = $true
 }
 Expand-Archive @Parameters
 
-Remove-Item -Path "Temp\jdk_windows-x64_bin.zip" -Force
+Remove-Item -Path "ReVanced\jdk_windows-x64_bin.zip" -Force

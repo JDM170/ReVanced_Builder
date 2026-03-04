@@ -9,7 +9,7 @@ $URL = ($apiResult.assets | Where-Object -FilterScript {$_.content_type -eq "tex
 $TAG = $apiResult.tag_name
 $Parameters = @{
     Uri             = $URL
-    Outfile         = "Temp\revanced-patches.rvp"
+    Outfile         = "ReVanced\revanced-patches.rvp"
     UseBasicParsing = $true
     Verbose         = $true
 }

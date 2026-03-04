@@ -4,83 +4,137 @@ $Parameters = @{
     Uri             = "https://api.revanced.app/v4/patches/list"
     UseBasicParsing = $true
 }
-$JSON = (Invoke-Webrequest @Parameters).Content | ConvertFrom-Json
-$versions = ($JSON | Where-Object -FilterScript {$_.name -eq "Video ads"})
-$LatestSupported = $versions.compatiblePackages.'com.google.android.youtube' | Sort-Object -Descending -Unique | Select-Object -First 1
+$Patches = Invoke-RestMethod @Parameters
+$LatestSupportedYT = ($Patches | Where-Object -FilterScript {$_.name -eq "Video ads"}).compatiblePackages."com.google.android.youtube" | Sort-Object -Descending -Unique | Select-Object -First 1
+$LatestSupported = $LatestSupportedYT.Replace(".", "-")
 
-# We need a NON-bundle version
-# https://apkpure.net/ru/youtube/com.google.android.youtube/versions
-<#
-$Parameters = @{
-    Uri             = "https://apkpure.net/youtube/com.google.android.youtube/download/$($LatestSupported)"
-    UseBasicParsing = $true
-    Verbose         = $true
-}
-$URL = (Invoke-Webrequest @Parameters).Links.href | Where-Object -FilterScript {$_ -match "APK/com.google.android.youtube"} | Select-Object -Index 1
+Get-Process -Name msedgedriver, msedge -ErrorAction Ignore | Stop-Process -Force -ErrorAction Ignore
 
+Write-Verbose -Message "Microsoft Edge driver" -Verbose
+
+# Get runner Microsoft Edge Version
+# https://edgeupdates.microsoft.com/api/products
+# https://github.com/GoogleChromeLabs/chrome-for-testing/blob/main/data/last-known-good-versions-with-downloads.json
+$RunnerEdgeVersion = (Get-Item -Path "${env:ProgramFiles(x86)}\Microsoft\Edge\Application\msedge.exe").VersionInfo.FileVersion
+
+# Download Microsoft Edge driver
+# https://developer.microsoft.com/microsoft-edge/tools/webdriver/
 $Parameters = @{
-    Uri             = $URL
-    OutFile         = "Temp\youtube.apk"
+    Uri             = "https://msedgedriver.microsoft.com/$RunnerEdgeVersion/edgedriver_win64.zip"
+    OutFile         = "ReVanced\edgedriver_win64.zip"
     UseBasicParsing = $true
     Verbose         = $true
 }
 Invoke-Webrequest @Parameters
-#>
 
-$AngleSharpAssemblyPath = (Get-ChildItem -Path (Split-Path -Path (Get-Package -Name AngleSharp).Source) -Filter "*.dll" -Recurse | Where-Object -FilterScript {$_ -match "standard"} | Select-Object -Last 1).FullName
-Add-Type -Path $AngleSharpAssemblyPath
+Write-Verbose -Message "Selenium web driver" -Verbose
 
-# Create parser object
-$angleparser = New-Object -TypeName AngleSharp.Html.Parser.HtmlParser
+# Download Selenium web driver
+# https://www.nuget.org/packages/selenium.webdriver
+# https://www.nuget.org/packages/selenium.support
+try
+{
+    $Parameters = @{
+      Uri             = "https://www.nuget.org/api/v2/package/Selenium.WebDriver"
+      OutFile         = "ReVanced\selenium.webdriver.nupkg"
+      UseBasicParsing = $true
+      Verbose         = $true
+      ErrorAction     = "Stop"
+    }
+    Invoke-RestMethod @Parameters
+}
+catch
+{
+    Write-Verbose -Message "Cannot download Selenium web driver" -Verbose
 
-# Trying to find correct APK link (not BUNDLE)
-# https://www.apkmirror.com/apk/google-inc/youtube/
-$apkMirrorLink = "https://www.apkmirror.com/apk/google-inc/youtube/youtube-$($LatestSupported.replace('.', '-'))-release/"
+    # Exit with a non-zero status to fail the job
+    exit 1
+}
+
 $Parameters = @{
-    Uri             = $apkMirrorLink
-    UseBasicParsing = $false # Disabled
+    Path            = "ReVanced\edgedriver_win64.zip"
+    DestinationPath = "ReVanced"
+    Force           = $true
     Verbose         = $true
 }
-$Request = Invoke-Webrequest @Parameters
-$Parsed = $angleparser.ParseDocument($Request.Content)
-$Parsed.All | Where-Object -FilterScript {$_.ClassName -match "table-row headerFont"} | ForEach-Object -Process {
-    foreach($child in $_.children)
+Expand-Archive @Parameters
+
+# Extract WebDriver.dll from archive
+Add-Type -Assembly System.IO.Compression.FileSystem
+$ZIP = [IO.Compression.ZipFile]::OpenRead("ReVanced\selenium.webdriver.nupkg")
+$Entries = $ZIP.Entries | Where-Object -FilterScript {$_.FullName -eq "lib/net8.0/WebDriver.dll"}
+$Entries | ForEach-Object -Process {[IO.Compression.ZipFileExtensions]::ExtractToFile($_, "ReVanced\$($_.Name)", $true)}
+$ZIP.Dispose()
+
+$Paths = @(
+    "ReVanced\Driver_Notes",
+    "ReVanced\edgedriver_win64.zip",
+    "ReVanced\selenium.webdriver.nupkg"
+)
+Remove-Item -Path $Paths -Force -Recurse
+
+Write-Verbose -Message "Adding web driver" -Verbose
+
+# Start parsing page
+Add-Type -Path "ReVanced\WebDriver.dll"
+
+$Options = New-Object -TypeName OpenQA.Selenium.Edge.EdgeOptions
+$Options.AddArgument("--headless=new")
+$Options.AddArgument("--window-size=1280,720")
+$Options.AddArgument("--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36 Edg/124.0.0.0")
+$driver = New-Object -TypeName OpenQA.Selenium.Edge.EdgeDriver("ReVanced\msedgedriver.exe", $Options)
+
+# https://www.apkmirror.com/apk/google-inc/youtube/
+$APKMirrorURL = "https://www.apkmirror.com/apk/google-inc/youtube/youtube-$($LatestSupported)-release/youtube-$($LatestSupported)-2-android-apk-download/"
+
+Write-Verbose -Message "Trying URL $APKMirrorURL" -Verbose
+
+$driver.Navigate().GoToUrl($APKMirrorURL)
+$ButtonTitle = $driver.FindElement([OpenQA.Selenium.By]::CssSelector("a.downloadButton"))
+
+# Get button title. We need a NON-bundle version only
+$ButtonTitle.Text.Trim()
+
+if ($ButtonTitle.Text.Trim() -match "DOWNLOAD APK BUNDLE")
+{
+    Write-Verbose -Message "$ButtonTitle.Text.Trim() matches 'BUNDLE'" -Verbose
+    $driver.Quit()
+    exit
+}
+
+$DownloadURL = $ButtonTitle.GetAttribute("href")
+$DownloadURL
+# Download youtube.apk
+# Waiting for Edge to finish downloading
+$driver.Navigate().GoToUrl($DownloadURL)
+
+# Get runned Downloads folder
+$DownloadsFolder = Get-ItemPropertyValue -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders" -Name "{374DE290-123F-4565-9164-39C4925E467B}"
+
+# Wait until apk is being downloaded
+do
+{
+    $APK = Test-Path -Path "$DownloadsFolder\*.apk"
+    if (-not $APK)
     {
-        if ($child.InnerHtml -eq "nodpi")
-        {
-            $apkPackageLink = (($_.getElementsByTagName("a") | Select-Object -First 1).Href).Substring(57)
-            break
-        }
+        "Waiting for an APK file to be downloaded..."
+        Start-Sleep -Seconds 5
     }
 }
-$apkMirrorLink += $apkPackageLink # actual APK link (not BUNDLE)
+while (-not $APK)
 
-# Get unique key to generate direct link
+# Copy APK to ReVanced_Builder folder
 $Parameters = @{
-    Uri             = $apkMirrorLink
-    UseBasicParsing = $false # Disabled
-    Verbose         = $true
+    Path        = "$DownloadsFolder\*.apk"
+    Destination = "ReVanced"
+    Force       = $true
 }
-$Request = Invoke-Webrequest @Parameters
-$Parsed = $angleparser.ParseDocument($Request.Content)
-$Key = $Parsed.All | Where-Object -FilterScript {$_.ClassName -match "accent_bg btn btn-flat downloadButton"} | ForEach-Object -Process {$_.Search}
+Copy-Item @Parameters
 
-$Parameters = @{
-    Uri             = $apkMirrorLink + "download/$($Key)"
-    UseBasicParsing = $true
-    Verbose         = $true
-}
-$Request = Invoke-Webrequest @Parameters
-$Parsed = $angleparser.ParseDocument($Request.Content)
-$Key = ($Parsed.All | Where-Object -FilterScript { $_.InnerHtml -eq "here" }).Search
+# Rename file to youtube.apk
+Get-Item -Path "ReVanced\*.apk" | Rename-Item -NewName youtube.apk -Force
 
-# Finally, get the real link
-$Parameters = @{
-    Uri             = "https://www.apkmirror.com/wp-content/themes/APKMirror/download.php$Key"
-    OutFile         = "Temp\youtube.apk"
-    UseBasicParsing = $true
-    Verbose         = $true
-}
-Invoke-Webrequest @Parameters
+$driver.Quit()
+Get-Process -Name msedgedriver, msedge -ErrorAction Ignore | Stop-Process -Force -ErrorAction Ignore
 
-echo "LatestSupportedYT=$LatestSupported" >> $env:GITHUB_ENV
+echo "LatestSupportedYT=$LatestSupportedYT" >> $env:GITHUB_ENV

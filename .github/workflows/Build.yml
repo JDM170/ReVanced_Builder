@@ -12,13 +12,9 @@ jobs:
     steps:
       - uses: actions/checkout@main
 
-      - name: Install AngleSharp
-        run: |
-          Install-Package AngleSharp -Source https://www.nuget.org/api/v2 -SkipDependencies -Force
-
       - name: Download YouTube
         run: |
-          New-Item -Path Temp -ItemType Directory -Force
+          New-Item -Path ReVanced -ItemType Directory -Force
 
           . Scripts\YouTube.ps1
 
@@ -48,24 +44,23 @@ jobs:
 
       - name: Build
         run: |
-          $JavaPath = (Resolve-Path -Path "Temp\jdk_windows-x64_bin\zulu*win_x64\bin\java.exe").Path
+          $JavaPath = (Resolve-Path -Path "ReVanced\jdk_windows-x64_bin\zulu*win_x64\bin\java.exe").Path
 
           & $JavaPath `
-          -jar "Temp\revanced-cli.jar" patch `
-          --patches "Temp\revanced-patches.rvp" `
+          -jar "ReVanced\revanced-cli.jar" patch `
+          --patches "ReVanced\revanced-patches.rvp" `
           --disable "Always repeat" `
           --disable "Disable auto captions" `
           --disable "Hide timestamp" `
           --disable "Hide seekbar" `
           --purge `
-          --out "Temp\revanced.apk" `
-          "Temp\youtube.apk"
+          --out "ReVanced\revanced.apk" `
+          "ReVanced\youtube.apk"
 
       - name: Create archive
         run: |
-          Get-ChildItem Temp\Temp -Recurse -Force
           $Parameters = @{
-              Path             = "Temp\revanced.apk", "Temp\microg.apk", "Temp\microg-hw.apk"
+              Path             = "ReVanced\revanced.apk", "ReVanced\microg.apk", "ReVanced\microg-hw.apk"
               DestinationPath  = "ReVanced.zip"
               CompressionLevel = "Fastest"
               Force            = $true
