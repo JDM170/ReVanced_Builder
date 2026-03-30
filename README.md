@@ -41,5 +41,6 @@ Trigger the [`Build`](https://github.com/JDM170/ReVanced_Builder/actions/workflo
 * [ReVanced Patches](https://github.com/revanced/revanced-patches)
 * [ReVanced MicroG](https://github.com/ReVanced/GmsCore)
 * [AngleSharp](https://github.com/AngleSharp/AngleSharp)
+* [Selenium](https://github.com/SeleniumHQ/selenium)
 * [Zulu JDK](https://github.com/ScoopInstaller/Java)
 * [Sophia Telegram chat](https://t.me/sophia_chat)
