@@ -1,12 +1,15 @@
 # Get the latest supported YouTube version to patch
-# https://api.revanced.app/docs/swagger
-$Parameters = @{
-    Uri             = "https://api.revanced.app/v4/patches/list"
-    UseBasicParsing = $true
-}
-$Patches = Invoke-RestMethod @Parameters
-$LatestSupportedYT = ($Patches | Where-Object -FilterScript {$_.name -eq "Video ads"}).compatiblePackages."com.google.android.youtube" | Sort-Object -Descending -Unique | Select-Object -First 1
-$LatestSupported = $LatestSupportedYT.Replace(".", "-")
+# https://api.revanced.app/
+$JavaPath = (Resolve-Path -Path "ReVanced\jdk_windows-x64_bin\zulu*win_x64\bin\java.exe").Path
+$patches_list = & $JavaPath `
+-jar "ReVanced\revanced-cli.jar" list-patches `
+--packages `
+--versions `
+--filter-package-name "com.google.android.youtube" `
+-p "ReVanced\revanced-patches.rvp" `
+-b
+$LatestSupported = [regex]::Matches($patches_list, "\d{2}\.\d{2}\.\d{2}") | ForEach-Object { $_.Value } | Sort-Object -Descending -Unique | Select-Object -First 1
+$LatestSupportedYT = $LatestSupported.Replace('.', '-')
 
 Get-Process -Name msedgedriver, msedge -ErrorAction Ignore | Stop-Process -Force -ErrorAction Ignore
 
@@ -35,11 +38,11 @@ Write-Verbose -Message "Selenium web driver" -Verbose
 try
 {
     $Parameters = @{
-      Uri             = "https://www.nuget.org/api/v2/package/Selenium.WebDriver"
-      OutFile         = "ReVanced\selenium.webdriver.nupkg"
-      UseBasicParsing = $true
-      Verbose         = $true
-      ErrorAction     = "Stop"
+        Uri             = "https://www.nuget.org/api/v2/package/Selenium.WebDriver"
+        OutFile         = "ReVanced\selenium.webdriver.nupkg"
+        UseBasicParsing = $true
+        Verbose         = $true
+        ErrorAction     = "Stop"
     }
     Invoke-RestMethod @Parameters
 }
@@ -85,7 +88,7 @@ $Options.AddArgument("--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) App
 $driver = New-Object -TypeName OpenQA.Selenium.Edge.EdgeDriver("ReVanced\msedgedriver.exe", $Options)
 
 # https://www.apkmirror.com/apk/google-inc/youtube/
-$APKMirrorURL = "https://www.apkmirror.com/apk/google-inc/youtube/youtube-$($LatestSupported)-release/youtube-$($LatestSupported)-2-android-apk-download/"
+$APKMirrorURL = "https://www.apkmirror.com/apk/google-inc/youtube/youtube-$($LatestSupportedYT)-release/youtube-$($LatestSupportedYT)-2-android-apk-download/"
 
 Write-Verbose -Message "Trying URL $APKMirrorURL" -Verbose
 
@@ -95,7 +98,7 @@ $ButtonTitle = $driver.FindElement([OpenQA.Selenium.By]::CssSelector("a.download
 # Get button title. We need a NON-bundle version only
 $ButtonTitle.Text.Trim()
 
-if ($ButtonTitle.Text.Trim() -match "DOWNLOAD APK BUNDLE")
+if ($ButtonTitle.Text.Trim() -match "DOWNLOAD APK BUNDLE" || $ButtonTitle.Text.Trim() -match "Download APK Bundle")
 {
     Write-Verbose -Message "$ButtonTitle.Text.Trim() matches 'BUNDLE'" -Verbose
     $driver.Quit()
@@ -103,7 +106,6 @@ if ($ButtonTitle.Text.Trim() -match "DOWNLOAD APK BUNDLE")
 }
 
 $DownloadURL = $ButtonTitle.GetAttribute("href")
-$DownloadURL
 # Download youtube.apk
 # Waiting for Edge to finish downloading
 $driver.Navigate().GoToUrl($DownloadURL)
@@ -132,7 +134,7 @@ $Parameters = @{
 Copy-Item @Parameters
 
 # Rename file to youtube.apk
-Get-Item -Path "ReVanced\*.apk" | Rename-Item -NewName youtube.apk -Force
+Get-Item -Path "ReVanced\com.google.android*.apk" | Rename-Item -NewName youtube.apk -Force
 
 $driver.Quit()
 Get-Process -Name msedgedriver, msedge -ErrorAction Ignore | Stop-Process -Force -ErrorAction Ignore

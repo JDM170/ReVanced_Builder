@@ -1,12 +1,12 @@
 # https://github.com/revanced/revanced-patches
 $Parameters = @{
-    Uri             = "https://api.github.com/repos/revanced/revanced-patches/releases/latest"
+    Uri             = "https://api.revanced.app/v5/patches"
     UseBasicParsing = $true
     Verbose         = $true
 }
 $apiResult = Invoke-RestMethod @Parameters
-$URL = ($apiResult.assets | Where-Object -FilterScript {$_.content_type -eq "text/plain"}).browser_download_url
-$TAG = $apiResult.tag_name
+$URL = $apiResult.download_url
+$TAG = $apiResult.version
 $Parameters = @{
     Uri             = $URL
     Outfile         = "ReVanced\revanced-patches.rvp"
