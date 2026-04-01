@@ -139,4 +139,4 @@ Get-Item -Path "ReVanced\com.google.android*.apk" | Rename-Item -NewName youtube
 $driver.Quit()
 Get-Process -Name msedgedriver, msedge -ErrorAction Ignore | Stop-Process -Force -ErrorAction Ignore
 
-echo "LatestSupportedYT=$LatestSupportedYT" >> $env:GITHUB_ENV
+echo "LatestSupportedYT=$LatestSupported" >> $env:GITHUB_ENV
