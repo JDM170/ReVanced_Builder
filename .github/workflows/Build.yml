@@ -40,7 +40,7 @@ jobs:
         if: ${{ env.KEYSTORE != '' }}
         run: |
           [byte[]]$bytes = [convert]::FromBase64String('${{ env.KEYSTORE }}')
-          [System.IO.File]::WriteAllBytes("Temp\revanced.keystore", $bytes)
+          [System.IO.File]::WriteAllBytes("ReVanced\revanced.keystore", $bytes)
 
       - name: Build
         run: |
