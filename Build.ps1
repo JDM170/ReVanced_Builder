@@ -34,87 +34,8 @@ if (-not (Test-Path -Path "$CurrentFolder\ReVanced"))
     New-Item -Path "$CurrentFolder\ReVanced" -ItemType Directory -Force
 }
 
-# Get the latest supported YouTube version to patch
-# https://api.revanced.app
-$Parameters = @{
-    Uri             = "https://api.revanced.app/v4/patches/list"
-    UseBasicParsing = $true
-}
-$JSON = (Invoke-Webrequest @Parameters).Content | ConvertFrom-Json
-$versions = ($JSON | Where-Object -FilterScript {$_.name -eq "Video ads"})
-$LatestSupported = $versions.compatiblePackages.'com.google.android.youtube' | Sort-Object -Descending -Unique | Select-Object -First 1
-
-Write-Verbose -Message "" -Verbose
-Write-Verbose -Message "Downloading the latest supported YouTube apk" -Verbose
-
-# We need a NON-bundle version
-<#
-# https://apkpure.net/ru/youtube/com.google.android.youtube/versions
-$Parameters = @{
-    Uri             = "https://apkpure.net/youtube/com.google.android.youtube/download/$($LatestSupported)"
-    UseBasicParsing = $true
-    Verbose         = $true
-}
-$URL = (Invoke-Webrequest @Parameters).Links.href | Where-Object -FilterScript {$_ -match "APK/com.google.android.youtube"} | Select-Object -Index 1
-
-$Parameters = @{
-    Uri             = $URL
-    OutFile         = "$CurrentFolder\ReVanced\youtube.apk"
-    UseBasicParsing = $true
-    Verbose         = $true
-}
-Invoke-Webrequest @Parameters
-#>
-
-# https://www.apkmirror.com/apk/google-inc/youtube/
-$apkMirrorLink = "https://www.apkmirror.com/apk/google-inc/youtube/youtube-$($LatestSupported.replace('.', '-'))-release/"
-$Parameters = @{
-    Uri             = $apkMirrorLink
-    UseBasicParsing = $false # Disabled
-    Verbose         = $true
-}
-$Request = Invoke-Webrequest @Parameters
-$Request.ParsedHtml.getElementsByClassName("table-row headerFont") | ForEach-Object -Process {
-    foreach ($child in $_.children)
-    {
-        if ($child.innerText -eq "nodpi")
-        {
-            $apkPackageLink = ($_.getElementsByTagName("a") | Select-Object -First 1).nameProp
-            break
-        }
-    }
-}
-$apkMirrorLink += $apkPackageLink # actual APK link (not BUNDLE)
-
-# Get unique key to generate direct link
-$Parameters = @{
-    Uri             = $apkMirrorLink
-    UseBasicParsing = $false # Disabled
-    Verbose         = $true
-}
-$Request = Invoke-Webrequest @Parameters
-$nameProp = $Request.ParsedHtml.getElementsByClassName("accent_bg btn btn-flat downloadButton") | ForEach-Object -Process {$_.nameProp}
-
-$Parameters = @{
-    Uri = $apkMirrorLink + "/download/$($nameProp)"
-    UseBasicParsing = $false # Disabled
-    Verbose         = $true
-}
-$URL_Part = ((Invoke-Webrequest @Parameters).Links | Where-Object -FilterScript {$_.innerHTML -eq "here"}).href
-# Replace "&amp;" with "&" to make it work
-$URL_Part = $URL_Part.Replace("&amp;", "&")
-
-# Finally, get the real link
-$Parameters = @{
-    Uri             = "https://www.apkmirror.com$URL_Part"
-    OutFile         = "$CurrentFolder\ReVanced\youtube.apk"
-    UseBasicParsing = $true
-    Verbose         = $true
-}
-Invoke-Webrequest @Parameters
-
-Write-Verbose -Message "" -Verbose
-Write-Verbose -Message "Downloading ReVanced CLI" -Verbose
+Write-Host "" -ForegroundColor Green
+Write-Host "Downloading ReVanced CLI" -ForegroundColor Green
 # https://github.com/revanced/revanced-cli
 $Parameters = @{
     Uri             = "https://api.github.com/repos/revanced/revanced-cli/releases/latest"
@@ -130,15 +51,15 @@ $Parameters = @{
 }
 Invoke-RestMethod @Parameters
 
-Write-Verbose -Message "" -Verbose
-Write-Verbose -Message "Downloading ReVanced patches" -Verbose
+Write-Host "" -ForegroundColor Green
+Write-Host "Downloading ReVanced patches" -ForegroundColor Green
 # https://github.com/revanced/revanced-patches
 $Parameters = @{
-    Uri             = "https://api.github.com/repos/revanced/revanced-patches/releases/latest"
+    Uri             = "https://api.revanced.app/v5/patches"
     UseBasicParsing = $true
     Verbose         = $true
 }
-$URL = ((Invoke-RestMethod @Parameters).assets | Where-Object -FilterScript {$_.content_type -eq "text/plain"}).browser_download_url
+$URL = (Invoke-RestMethod @Parameters).download_url
 $Parameters = @{
     Uri             = $URL
     Outfile         = "$CurrentFolder\ReVanced\revanced-patches.rvp"
@@ -147,8 +68,8 @@ $Parameters = @{
 }
 Invoke-RestMethod @Parameters
 
-Write-Verbose -Message "" -Verbose
-Write-Verbose -Message "Downloading ReVanced GmsCore" -Verbose
+Write-Host "" -ForegroundColor Green
+Write-Host "Downloading ReVanced GmsCore" -ForegroundColor Green
 # https://github.com/ReVanced/GmsCore
 $Parameters = @{
     Uri             = "https://api.github.com/repos/ReVanced/GmsCore/releases/latest"
@@ -177,8 +98,8 @@ if (Test-Path -Path "$CurrentFolder\ReVanced\jdk")
     Remove-Item -Path "$CurrentFolder\ReVanced\jdk" -Recurse -Force
 }
 
-Write-Verbose -Message "" -Verbose
-Write-Verbose -Message "Downloading Azul Zulu" -Verbose
+Write-Host "" -ForegroundColor Green
+Write-Host "Downloading Azul Zulu" -ForegroundColor Green
 # https://github.com/ScoopInstaller/Java/blob/master/bucket/zulu-jdk.json
 $Parameters = @{
     Uri             = "https://raw.githubusercontent.com/ScoopInstaller/Java/master/bucket/zulu-jdk.json"
@@ -205,6 +126,22 @@ Expand-Archive @Parameters
 
 Remove-Item -Path "$CurrentFolder\ReVanced\jdk_windows-x64_bin.zip" -Force
 
+# Get the latest supported YouTube version to patch
+$patches_list = & "$CurrentFolder\ReVanced\jdk\zulu*win_x64\bin\java.exe" `
+-jar "ReVanced\revanced-cli.jar" list-patches `
+--packages `
+--versions `
+--filter-package-name "com.google.android.youtube" `
+-p "ReVanced\revanced-patches.rvp" `
+-b
+$LatestSupported = ([regex]::Matches($patches_list, "\d{2}\.\d{2}\.\d{2}") | ForEach-Object { $_.Value } | Sort-Object -Descending -Unique | Select-Object -First 1).Replace('.', '-')
+
+Write-Host "" -ForegroundColor Green
+Write-Host "Download 'nodpi' version from: https://www.apkmirror.com/apk/google-inc/youtube/youtube-$LatestSupported-release/" -ForegroundColor Green
+Write-Host "Place the file in the 'ReVanced' folder with the name 'youtube.apk'." -ForegroundColor Green
+Write-Host "Press Enter to continue." -ForegroundColor Green
+Read-Host
+
 # Let's create patched APK
 & "$CurrentFolder\ReVanced\jdk\zulu*win_x64\bin\java.exe" `
 -jar "$CurrentFolder\ReVanced\revanced-cli.jar" patch `
@@ -216,6 +153,7 @@ Remove-Item -Path "$CurrentFolder\ReVanced\jdk_windows-x64_bin.zip" -Force
 --purge `
 --temporary-files-path "$CurrentFolder\ReVanced\Temp" `
 --out "$CurrentFolder\ReVanced\revanced.apk" `
+-b `
 "$CurrentFolder\ReVanced\youtube.apk"
 
 # Open working directory with builded files
@@ -225,7 +163,7 @@ Remove-Item -Path "$CurrentFolder\ReVanced\jdk_windows-x64_bin.zip" -Force
 # Remove-Item -Path "$CurrentFolder\ReVanced\Temp" -Recurse -Force -Confirm:$false
 
 $Files = @(
-    "$CurrentFolder\ReVanced\Temp",
+    # "$CurrentFolder\ReVanced\Temp",
     "$CurrentFolder\ReVanced\jdk",
     "$CurrentFolder\ReVanced\revanced-cli.jar",
     "$CurrentFolder\ReVanced\revanced-patches.rvp",
