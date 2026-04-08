@@ -1,12 +1,11 @@
 # Get the latest supported YouTube version to patch
-# https://api.revanced.app/
 $JavaPath = (Resolve-Path -Path "ReVanced\jdk_windows-x64_bin\zulu*win_x64\bin\java.exe").Path
 $patches_list = & $JavaPath `
 -jar "ReVanced\revanced-cli.jar" list-patches `
+--patches "ReVanced\revanced-patches.rvp" `
 --packages `
 --versions `
 --filter-package-name "com.google.android.youtube" `
--p "ReVanced\revanced-patches.rvp" `
 -b
 $LatestSupported = [regex]::Matches($patches_list, "\d{2}\.\d{2}\.\d{2}") | ForEach-Object { $_.Value } | Sort-Object -Descending -Unique | Select-Object -First 1
 $LatestSupportedYT = $LatestSupported.Replace('.', '-')

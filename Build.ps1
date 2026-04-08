@@ -127,6 +127,8 @@ Expand-Archive @Parameters
 Remove-Item -Path "$CurrentFolder\ReVanced\jdk_windows-x64_bin.zip" -Force
 
 # Get the latest supported YouTube version to patch
+Write-Host "" -ForegroundColor Green
+Write-Host "Getting latest supported YouTube APK version" -ForegroundColor Green
 $patches_list = & "$CurrentFolder\ReVanced\jdk\zulu*win_x64\bin\java.exe" `
 -jar "ReVanced\revanced-cli.jar" list-patches `
 --packages `
