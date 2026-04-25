@@ -7,7 +7,7 @@ $patches_list = & $JavaPath `
 --versions `
 --filter-package-name "com.google.android.youtube" `
 -b
-$LatestSupported = [regex]::Matches($patches_list, "\d{2}\.\d{2}\.\d{2}") | ForEach-Object { $_.Value } | Sort-Object -Descending -Unique | Select-Object -First 1
+$LatestSupported = [regex]::Matches($patches_list, "\d{2}\.\d{2}\.\d{2,3}") | ForEach-Object { $_.Value } | Sort-Object -Descending -Unique | Select-Object -First 1
 $LatestSupportedYT = $LatestSupported.Replace('.', '-')
 
 Get-Process -Name msedgedriver, msedge -ErrorAction Ignore | Stop-Process -Force -ErrorAction Ignore

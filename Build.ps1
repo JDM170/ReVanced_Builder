@@ -136,7 +136,7 @@ $patches_list = & "$CurrentFolder\ReVanced\jdk\zulu*win_x64\bin\java.exe" `
 --filter-package-name "com.google.android.youtube" `
 -p "ReVanced\revanced-patches.rvp" `
 -b
-$LatestSupported = ([regex]::Matches($patches_list, "\d{2}\.\d{2}\.\d{2}") | ForEach-Object { $_.Value } | Sort-Object -Descending -Unique | Select-Object -First 1).Replace('.', '-')
+$LatestSupported = ([regex]::Matches($patches_list, "\d{2}\.\d{2}\.\d{2,3}") | ForEach-Object { $_.Value } | Sort-Object -Descending -Unique | Select-Object -First 1).Replace('.', '-')
 
 Write-Host "" -ForegroundColor Green
 Write-Host "Download 'nodpi' version from: https://www.apkmirror.com/apk/google-inc/youtube/youtube-$LatestSupported-release/" -ForegroundColor Green
