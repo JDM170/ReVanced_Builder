@@ -1,3 +1,8 @@
+
+# This repository is no longer in use. All updates and releases will now be available on [Apps-Patcher](https://github.com/JDM170/Apps-Patcher)
+
+---
+
 <a href="https://github.com/JDM170/ReVanced_Builder/actions"><img src="https://img.shields.io/github/actions/workflow/status/JDM170/ReVanced_Builder/Build.yml?label=GitHub%20Actions&logo=GitHub"></a>
 
 # ReVanced builder
